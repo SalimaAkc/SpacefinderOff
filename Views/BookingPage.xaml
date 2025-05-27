@@ -1,0 +1,66 @@
+<Page x:Class="SpacefinderOff.Views.BookingPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="BookingPage">
+	<DockPanel>
+	<Grid Background="#F8F9FA">
+		<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20" Width="400">
+
+			<!-- Title -->
+			<TextBlock Text="Spacefinder Booking"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="#2C3E50"
+                       TextAlignment="Center"
+                       Margin="0,0,0,40"/>
+
+			<!-- Campus Selection Buttons -->
+			<Button Content="Campus Geel"
+                    Margin="0,10"
+                    Padding="20"
+                    Background="#007ACC"
+                    Foreground="White"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="CampusGeel_Click"/>
+
+			<Button Content="Campus De Nayer"
+                    Margin="0,10"
+                    Padding="20"
+                    Background="#007ACC"
+                    Foreground="White"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="CampusDeNayer_Click"/>
+
+			<Button Content="Campus Mechelen"
+                    Margin="0,10"
+                    Padding="20"
+                    Background="#007ACC"
+                    Foreground="White"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="CampusMechelen_Click"/>
+
+			<Button Content="Campus Sint-Katelijne-Waver"
+                    Margin="0,10"
+                    Padding="20"
+                    Background="#007ACC"
+                    Foreground="White"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="CampusSKW_Click"/>
+		</StackPanel>
+		<Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>
+	</Grid>
+		</DockPanel>
+	
+</Page>

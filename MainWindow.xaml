@@ -1,0 +1,41 @@
+﻿<Window x:Class="SpacefinderOff.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Spacefinder" 
+        Height="600" 
+        Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="#2E3440">
+    <DockPanel>
+        <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Name="HomeButton" 
+                Content="Home"
+                Margin="5"
+                Padding="50,30"
+                Background="#5E81AC"
+                Foreground="White"
+                BorderThickness="0"
+                Cursor="Hand" Click="HomeButton_Click"/>
+
+        <Button Name="LoginButton" 
+                Content="Login" 
+                Margin="5"
+                Padding="50,30"
+                Background="#5E81AC"
+                Foreground="White"
+                BorderThickness="0"
+                Cursor="Hand" Click="LoginButton_Click"/>
+
+        <Button Name="InformationButton" 
+                Content="Information" 
+                Margin="5"
+                Padding="50,30"
+                Background="#5E81AC"
+                Foreground="White"
+                BorderThickness="0"
+                Cursor="Hand" Click="InformationButton_Click"/>
+    </WrapPanel>
+        
+    <Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>
+    </DockPanel>
+</Window>
