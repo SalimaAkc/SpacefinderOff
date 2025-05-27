@@ -25,7 +25,18 @@ namespace SpacefinderOff.Views
                 return;
             }
 
+            var bookingPage = new BookingPage();
+
+            if (this.NavigationService != null)
+            {
+                this.NavigationService.Navigate(bookingPage);
+            }
+            else
+            {
+                MessageBox.Show("NavigationService not found. Please ensure your LoginPage is hosted in a Frame or NavigationWindow.");
+            }
         }
+
         private void SignUpButton_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Navigating to sign-up page...");
