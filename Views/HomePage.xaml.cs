@@ -15,10 +15,6 @@ namespace SpacefinderOff.Views
             InitializeComponent();
         }
 
-        public void FindYourSpace_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
 
 
     }

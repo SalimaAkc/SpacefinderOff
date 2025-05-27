@@ -48,6 +48,19 @@
                                 Margin="0,0,0,20"
                                 BorderBrush="#BDC3C7"
                                 BorderThickness="2"/>
+                    
+                    <Button Content="Forgot your password?" 
+                            Name="ForgotPasswordButton"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="#007ACC"
+                            HorizontalAlignment="Left"
+                            Cursor="Hand"
+                            Margin="0,0,0,20"
+                            FontWeight="Bold"
+                            FontSize="14"
+                            Click="ForgotPasswordButton_Click"/>
+
 
                     <CheckBox Name="RememberMeCheckBox" 
                              Content="Remember me" 

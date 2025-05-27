@@ -38,5 +38,9 @@ namespace SpacefinderOff.Views
             AvailableRoomsListBox.Items.Add($"Room C - {campus} - {day} {month} {year}");
         }
 
+        private void ProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.NavigationService?.Navigate(new ProfilePage());
+        }
     }
 }
