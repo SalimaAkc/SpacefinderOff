@@ -6,7 +6,6 @@
 	<Grid Background="#F8F9FA">
 		<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20" Width="400">
 
-			<!-- Title -->
 			<TextBlock Text="Spacefinder Booking"
                        FontSize="32"
                        FontWeight="Bold"
@@ -14,8 +13,7 @@
                        TextAlignment="Center"
                        Margin="0,0,0,40"/>
 
-			<!-- Campus Selection Buttons -->
-			<Button Content="Campus Geel"
+			<Button Content="Campus Kruidtuin"
                     Margin="0,10"
                     Padding="20"
                     Background="#007ACC"
@@ -24,9 +22,9 @@
                     FontWeight="SemiBold"
                     BorderThickness="0"
                     Cursor="Hand"
-                    Click="CampusGeel_Click"/>
+                    Click="CampusKruidtuin_Click"/>
 
-			<Button Content="Campus De Nayer"
+			<Button Content="Campus De Vest"
                     Margin="0,10"
                     Padding="20"
                     Background="#007ACC"
@@ -35,9 +33,9 @@
                     FontWeight="SemiBold"
                     BorderThickness="0"
                     Cursor="Hand"
-                    Click="CampusDeNayer_Click"/>
+                    Click="CampusDeVest_Click"/>
 
-			<Button Content="Campus Mechelen"
+			<Button Content="Campus De Ham"
                     Margin="0,10"
                     Padding="20"
                     Background="#007ACC"
@@ -46,9 +44,9 @@
                     FontWeight="SemiBold"
                     BorderThickness="0"
                     Cursor="Hand"
-                    Click="CampusMechelen_Click"/>
+                    Click="CampusDeHam_Click"/>
 
-			<Button Content="Campus Sint-Katelijne-Waver"
+			<Button Content="Campus Lucas Faydherbe"
                     Margin="0,10"
                     Padding="20"
                     Background="#007ACC"
@@ -57,7 +55,7 @@
                     FontWeight="SemiBold"
                     BorderThickness="0"
                     Cursor="Hand"
-                    Click="CampusSKW_Click"/>
+                    Click="CampusLucasFaydherbe_Click"/>
 		</StackPanel>
 		<Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>
 	</Grid>

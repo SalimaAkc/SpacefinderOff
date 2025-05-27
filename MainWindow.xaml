@@ -35,7 +35,7 @@
                 BorderThickness="0"
                 Cursor="Hand" Click="InformationButton_Click"/>
     </WrapPanel>
-        
-    <Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>
+
+        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
     </DockPanel>
 </Window>
