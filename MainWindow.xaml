@@ -26,14 +26,6 @@
                 BorderThickness="0"
                 Cursor="Hand" Click="LoginButton_Click"/>
 
-        <Button Name="InformationButton" 
-                Content="Information" 
-                Margin="5"
-                Padding="50,30"
-                Background="#5E81AC"
-                Foreground="White"
-                BorderThickness="0"
-                Cursor="Hand" Click="InformationButton_Click"/>
     </WrapPanel>
 
         <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>

@@ -119,7 +119,6 @@
 							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
 
-						<!-- Full Name -->
 						<StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,15,20">
 							<TextBlock Text="Full Name" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,5"/>
 							<TextBox Name="FullNameTextBox"

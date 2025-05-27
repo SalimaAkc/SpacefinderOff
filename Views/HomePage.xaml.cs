@@ -8,19 +8,12 @@ using System.Windows.Controls;
 
 namespace SpacefinderOff.Views
 {
-    public partial class HomePage : Page
+    public partial class HomePage
     {
         public HomePage()
         {
             InitializeComponent();
-
         }
-
-        private void FindYourSpace_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService?.Navigate(new BookingPage());
-        }
-
 
     }
 }

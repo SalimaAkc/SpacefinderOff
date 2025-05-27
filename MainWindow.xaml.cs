@@ -28,11 +28,7 @@ namespace SpacefinderOff
             MainFrame.Navigate(new Views.LoginPage());
 
         }
-        private void InformationButton_Click(object sender, RoutedEventArgs e)
-        {
-            MainFrame.Navigate(new Views.InformationPage());
-
-        }
+        
 
     }
 }
