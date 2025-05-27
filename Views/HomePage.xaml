@@ -1,22 +1,48 @@
-<Page x:Class="SpacefinderOff.Views.HomePage"
+﻿<Page x:Class="SpacefinderOff.Views.HomePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Home" Height="320" Width="535">
+      Title="HomePage">
 
-    <Grid Background="White" Margin="-30,0,29,0">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="471">
-            <TextBlock Text="Welcome to Spacefinder"
-                       FontSize="32"
-                       FontWeight="Bold"
-                       Foreground="#2E3440"
-                       HorizontalAlignment="Center"
-                       Margin="30,30,30,50"/>
+    <Grid Background="#F8F9FA">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="40" HorizontalAlignment="Center" MaxWidth="800">
 
-            <Button Content="Find your perfect workspace"
-                       Name ="FindYourSpace"
-                       FontSize="16"
-                       Foreground="#4C566A"
-                       HorizontalAlignment="Center" Click="FindYourSpace_Click"/>
-        </StackPanel>
+                <TextBlock Text="Welcome to Spacefinder 🚀" 
+                           FontSize="36" 
+                           FontWeight="Bold"
+                           Foreground="#2C3E50"
+                           Margin="0,30,0,20"
+                           TextAlignment="Center"/>
+
+                <TextBlock Text="Spacefinder is your smart assistant for finding and booking rooms in Thomas More. Whether you're a student looking for a quiet study space or a teacher reserving a lecture hall, Spacefinder makes the process quick and easy."
+                           FontSize="16" 
+                           Foreground="#34495E"
+                           TextWrapping="Wrap" 
+                           TextAlignment="Center"
+                           Margin="0,0,0,20"/>
+
+                <TextBlock Text="With Spacefinder, you can:"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="#2C3E50"
+                           Margin="0,20,0,10"
+                           TextAlignment="Left"/>
+
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock Text="• Browse available rooms by campus and building" FontSize="14" Foreground="#2C3E50" Margin="0,5"/>
+                    <TextBlock Text="• Book study rooms, classrooms, or meeting spaces instantly" FontSize="14" Foreground="#2C3E50" Margin="0,5"/>
+                    <TextBlock Text="• View your upcoming reservations at a glance" FontSize="14" Foreground="#2C3E50" Margin="0,5"/>
+                    <TextBlock Text="• Manage your profile and preferences easily" FontSize="14" Foreground="#2C3E50" Margin="0,5"/>
+                </StackPanel>
+
+                <TextBlock Text="Log in now and take control of your study environment. Your ideal space is just a few clicks away!"
+                           FontSize="16" 
+                           FontWeight="Bold" 
+                           Foreground="#007ACC"
+                           TextWrapping="Wrap" 
+                           TextAlignment="Center"
+                           Margin="0,10,0,30"/>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>
