@@ -17,7 +17,7 @@ namespace SpacefinderOff.Models
         public string? PhoneNumber { get; set; }
         public string? UserName { get; set; }
 
-        public string FullName => $"{FirstName} {LastName}";
+        public string? FullName { get; set; }
 
         public int? NumberId { get; set; }
 

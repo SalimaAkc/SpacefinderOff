@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SpacefinderOff.Models;
+using SpacefinderOff.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,17 +26,27 @@ namespace SpacefinderOff.Views
                 MessageBox.Show("Please enter both email and password.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+            if (!EmailValidator.IsValidThomasMoreEmail(email))
+            {
+                MessageBox.Show("Only @student.thomasmore.be or @teacher.thomasmore.be emails are allowed.",
+                                "Invalid Email", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!UserService.IsEmailRegistered(email))
+            {
+                MessageBox.Show("This email is not registered. Please sign up first.", "Login Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!UserService.ValidateUser(email, password))
+            {
+                MessageBox.Show("Incorrect email or password.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             var bookingPage = new BookingPage();
-
-            if (this.NavigationService != null)
-            {
-                this.NavigationService.Navigate(bookingPage);
-            }
-            else
-            {
-                MessageBox.Show("NavigationService not found. Please ensure your LoginPage is hosted in a Frame or NavigationWindow.");
-            }
+            this.NavigationService?.Navigate(bookingPage);
 
 
         }
@@ -45,8 +57,7 @@ namespace SpacefinderOff.Views
 
         private void ForgotPasswordButton_Click(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new ForgotPasswordPage());
-
+            this.NavigationService?.Navigate(new ForgotPasswordPage());
         }
     }
 }

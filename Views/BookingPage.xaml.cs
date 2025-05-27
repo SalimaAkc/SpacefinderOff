@@ -31,11 +31,19 @@ namespace SpacefinderOff.Views
             string? day = (DayComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string? month = (MonthComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string? year = (YearComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string? startTime = (StartTimeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string? endTime = (EndTimeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
+            AvailableRoomsListBox.Items.Add($"Room A - {campus} - {day} {month} {year} - {startTime} to {endTime}");
+            AvailableRoomsListBox.Items.Add($"Room B - {campus} - {day} {month} {year} - {startTime} to {endTime}");
+            AvailableRoomsListBox.Items.Add($"Room C - {campus} - {day} {month} {year} - {startTime} to {endTime}");
 
-            AvailableRoomsListBox.Items.Add($"Room A - {campus} - {day} {month} {year}");
-            AvailableRoomsListBox.Items.Add($"Room B - {campus} - {day} {month} {year}");
-            AvailableRoomsListBox.Items.Add($"Room C - {campus} - {day} {month} {year}");
+            if (string.Compare(startTime, endTime) >= 0)
+            {
+                MessageBox.Show("End time must be after start time.", "Invalid Time Range", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
         }
 
         private void ProfileButton_Click(object sender, RoutedEventArgs e)

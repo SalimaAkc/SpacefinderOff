@@ -1,12 +1,13 @@
-﻿using System;
+﻿using SpacefinderOff.Services;
+using SpacefinderOff.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using SpacefinderOff.Services;
-using SpacefinderOff.Models;
+
 
 namespace SpacefinderOff.Views
 {
@@ -47,6 +48,15 @@ namespace SpacefinderOff.Views
                 MessageBox.Show("Passwords do not match.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            UserService.AddUser(new User
+            {
+                FullName = fullName,
+                Email = email,
+                Password = password // In a real app, hash the password
+            });
+
+            AppState.CurrentUser = UserService.Users.FirstOrDefault(u => u.Email == email);
 
             this.NavigationService?.Navigate(new BookingPage());
         }
