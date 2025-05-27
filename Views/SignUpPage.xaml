@@ -87,6 +87,7 @@
                                 Margin="0,15,0,0">
                         <TextBlock Text="Already have an account? " 
                                    Foreground="#7F8C8D"/>
+                        
                         <Button Content="Sign in here" 
                                 Name="SignInButton"
                                 Background="Transparent"

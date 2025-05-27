@@ -35,6 +35,8 @@ namespace SpacefinderOff.Views
             {
                 MessageBox.Show("NavigationService not found. Please ensure your LoginPage is hosted in a Frame or NavigationWindow.");
             }
+
+
         }
         private void SignUpButton_Click(object sender, RoutedEventArgs e)
         {

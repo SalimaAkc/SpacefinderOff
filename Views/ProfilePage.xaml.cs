@@ -10,59 +10,30 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using SpacefinderOff.Services;
+using SpacefinderOff.Models;
+
 
 namespace SpacefinderOff.Views
 {
     public partial class ProfilePage : Page 
     {
-        //ResourceManager rm = new ("SpacefinderOff.Resources", typeof(ProfilePage).Assembly);
         public ProfilePage()
         {
             InitializeComponent();
-            //SetLanguageTexts();
+            LoadUserInfo();
         }
-        /*
-        public void SetLanguageTexts()
+        private void LoadUserInfo()
         {
-            FullNameLabel.Text = rm.GetString("FullNameLabel");
-            UsernameLabel.Text = rm.GetString("UsernameLabel");
-            EmailTextBox.PlaceholderText = rm.GetString("EmailTextBox");
-            UploadPhotoButton.Content = rm.GetString("UploadPhotoButton");
-            DeleteAccountButton.Content = rm.GetString("DeleteAccountButton");
-            UpdateInfoButton.Content = rm.GetString("UpdateInfoButton");
-            ChangePasswordButton.Content = rm.GetString("ChangePasswordButton");
-            CurrentPasswordBox.PlaceholderText = rm.GetString("CurrentPasswordBox");
-            NewPasswordBox.PlaceholderText = rm.GetString("NewPasswordBox");
-            ConfirmNewPasswordBox.PlaceholderText = rm.GetString("ConfirmNewPasswordBox");
-            LanguageCombobox.Header = rm.GetString("LanguageCombobox");
-            StudyProgramTextBox.PlaceholderText = rm.GetString("StudyProgramTextBox");
-            RecentBookings.Text = rm.GetString("RecentBookings");
-            AccountStatus.Text = rm.GetString("AccountStatus");
-        }
+            var user = AppState.CurrentUser;
 
-
-        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (LanguageCombobox.SelectedItem is ComboBoxItem selectedItem)
+            if (user != null)
             {
-                string? selectedLanguage = selectedItem.Content.ToString();
-
-                string cultureCode = selectedLanguage switch
-                {
-                    "English" => "en",
-                    "Dutch" => "nl",
-                    "French" => "fr",
-                    "German" => "de",
-                    _ => "en"
-                };
-
-                Thread.CurrentThread.CurrentUICulture = new CultureInfo(cultureCode);
-                Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureCode);
-
-                SetLanguageTexts(); // Reload all UI strings
+                FullNameLabel.Text = user.FullName;
+                UserNameLabel.Text = user.UserName;
+                EmailTextBox.Text = user.Email;
             }
-        }*/
-
+        }
 
         private void UploadPhotoButton_Click(object sender, RoutedEventArgs e)
         {
@@ -75,14 +46,11 @@ namespace SpacefinderOff.Views
             }
 
 
-
-
-
         }
 
         private void UpdateInfoButton_Click(object sender, RoutedEventArgs e)
         {
-
+            MessageBox.Show("Update Info clicked.");
         }
 
         private void DeleteAccountButton_Click(object sender, RoutedEventArgs e)
@@ -109,6 +77,10 @@ namespace SpacefinderOff.Views
         private void ChangePasswordButton_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+        private void BackToBooking_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new BookingPage());
         }
 
     }

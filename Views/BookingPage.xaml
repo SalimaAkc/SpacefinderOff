@@ -14,7 +14,6 @@
             <Button Name="ProfileButton"
                     Content="My Profile"
                     HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
                     Padding="8,4"
                     Margin="0,10,0,0"
                     FontSize="14"

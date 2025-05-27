@@ -99,7 +99,7 @@
                     Margin="0,20,20,20"
                     Padding="30">
                 <StackPanel>
-                    <TextBlock Text="Edit Profile"
+                    <TextBlock Text="Profile"
                                FontSize="28"
                                FontWeight="Bold"
                                Foreground="#2E3440"
@@ -122,7 +122,6 @@
                         <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,15,20">
                             <TextBlock Text="Full Name" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,5"/>
                             <TextBox Name="FullNameLabel"
-                                     Text="Salima Akachar"
                                      Padding="12"
                                      BorderBrush="#D1D5DB"
                                      Background="White"/>
@@ -131,7 +130,6 @@
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="15,0,0,20">
                             <TextBlock Text="Username" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,5"/>
                             <TextBox Name="UsernameLabel"
-                                     Text="r1059518"
                                      Padding="12"
                                      BorderBrush="#D1D5DB"
                                      Background="White"/>
@@ -147,12 +145,21 @@
 
                         <StackPanel Grid.Row="1" Grid.Column="1" Margin="15,0,0,20">
                             <TextBlock Text="Study Program" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,5"/>
-                            <TextBox Name="StudyProgramTextBox"
-                                     Text="Data Science, Protection &amp; Security"
-                                     Padding="12"
-                                     BorderBrush="#D1D5DB"
-                                     Background="White"/>
+                            <ComboBox Name="StudyProgramComboBox"
+              Padding="10"
+              BorderBrush="#D1D5DB"
+              Background="White"
+              SelectedIndex="0">
+                                <ComboBoxItem Content="Data Science, Protection &amp; Security" />
+                                <ComboBoxItem Content="Application Development" />
+                                <ComboBoxItem Content="Network &amp; Cyber Security" />
+                                <ComboBoxItem Content="AI &amp; Robotics" />
+                                <ComboBoxItem Content="Multimedia &amp; Creative Technology" />
+                                <ComboBoxItem Content="Business IT" />
+                            </ComboBox>
                         </StackPanel>
+
+
 
                         <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,15,20">
                             <TextBlock Text="New Password" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,5"/>
@@ -173,7 +180,6 @@
                         <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,15,20">
                             <TextBlock Text="Email Address" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,5"/>
                             <TextBox Name="EmailTextBox"
-                                     Text="r1059518@student.thomasmore.be"
                                      Padding="12"
                                      BorderBrush="#D1D5DB"
                                      Background="#F9FAFB"
