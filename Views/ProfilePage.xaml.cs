@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using SpacefinderOff.Services;
 using SpacefinderOff.Models;
+using MySql.Data.MySqlClient;
 
 
 namespace SpacefinderOff.Views

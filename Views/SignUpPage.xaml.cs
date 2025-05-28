@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using MySql.Data.MySqlClient;
 
 
 namespace SpacefinderOff.Views
@@ -49,17 +50,54 @@ namespace SpacefinderOff.Views
                 return;
             }
 
-            UserService.AddUser(new User
+            string connectionString = "server=localhost;port=3306;user=root;password=;database=SpaceFinderAppDB;";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                FullName = fullName,
-                Email = email,
-                Password = password // In a real app, hash the password
-            });
+                try
+                {
+                    conn.Open();
 
-            AppState.CurrentUser = UserService.Users.FirstOrDefault(u => u.Email == email);
+                    // Check if user already exists
+                    string checkQuery = "SELECT COUNT(*) FROM Users WHERE email = @Email";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, conn);
+                    checkCmd.Parameters.AddWithValue("@Email", email);
+                    int existingCount = Convert.ToInt32(checkCmd.ExecuteScalar());
 
-            this.NavigationService?.Navigate(new BookingPage());
+                    if (existingCount > 0)
+                    {
+                        MessageBox.Show("An account with this email already exists.", "Duplicate Account", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    // Add new user
+                    string insertQuery = "INSERT INTO Users (fullName, email, password) VALUES (@FullName, @Email, @Password)";
+                    MySqlCommand insertCmd = new MySqlCommand(insertQuery, conn);
+                    insertCmd.Parameters.AddWithValue("@FullName", fullName);
+                    insertCmd.Parameters.AddWithValue("@Email", email);
+                    insertCmd.Parameters.AddWithValue("@Password", password); // In production, hash this!
+
+                    insertCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Registration successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Optionally set user session state (if you're tracking current user in AppState)
+                    AppState.CurrentUser = new User
+                    {
+                        FullName = fullName,
+                        Email = email,
+                        Password = password
+                    };
+
+                    this.NavigationService?.Navigate(new BookingPage());
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Database error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
+
         private void SignInButton_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService?.Navigate(new LoginPage());

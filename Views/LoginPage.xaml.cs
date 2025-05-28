@@ -6,11 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using MySql.Data.MySqlClient;
 
 namespace SpacefinderOff.Views
 {
     public partial class LoginPage
     {
+        
+
         public LoginPage()
         {
             InitializeComponent();
@@ -33,20 +36,40 @@ namespace SpacefinderOff.Views
                 return;
             }
 
-            if (!UserService.IsEmailRegistered(email))
-            {
-                MessageBox.Show("This email is not registered. Please sign up first.", "Login Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            string connectionString = "server=localhost;port=3306;user=root;password=;database=SpaceFinderAppDB;";
 
-            if (!UserService.ValidateUser(email, password))
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                MessageBox.Show("Incorrect email or password.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                try
+                {
+                    conn.Open();
 
-            var bookingPage = new BookingPage();
-            this.NavigationService?.Navigate(bookingPage);
+                    string query = "SELECT * FROM Users WHERE email=@Email AND password=@Password";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.AddWithValue("@Password", password);
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        MessageBox.Show("Login successful!");
+
+                        var bookingPage = new BookingPage();
+                        this.NavigationService?.Navigate(bookingPage);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Incorrect email or password.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Database error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+
+            }
 
 
         }
