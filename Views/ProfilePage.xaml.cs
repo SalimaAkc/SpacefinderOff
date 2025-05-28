@@ -22,13 +22,14 @@ namespace SpacefinderOff.Views
         public ProfilePage()
         {
             InitializeComponent();
-            LoadUserProfile();
+            LoadUserInfo();
         }
-        private void LoadUserProfile()
+        private void LoadUserInfo()
         {
-            string email = AppState.CurrentUser.Email;
-            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
+            if (AppState.CurrentUser == null || string.IsNullOrEmpty(AppState.CurrentUser.Email))
+                return;
 
+            string connectionString = "server=localhost;user=root;password=;database=SpacefinderAppDB;";
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 try
@@ -37,29 +38,29 @@ namespace SpacefinderOff.Views
 
                     string query = "SELECT fullName, email, created_at FROM Users WHERE email = @Email";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.AddWithValue("@Email", AppState.CurrentUser.Email);
 
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
-                            string fullName = reader.GetString("fullName");
-                            string userEmail = reader.GetString("email");
-                            DateTime createdAt = reader.GetDateTime("created_at");
+                            string fullName = reader["fullName"].ToString();
+                            string email = reader["email"].ToString();
+                            DateTime createdAt = Convert.ToDateTime(reader["created_at"]);
 
-                            FullNameLabel.Text = fullName;
-                            EmailTextBox.Text = userEmail;
-                            RegistrationDateTextBlock.Text = createdAt.ToString("dd MMM yyyy");
+                            UserNameLabel.Text = fullName;
+                            EmailTextBox.Text = email;
+                            RegistrationDateTextBlock.Text = $"Member Since: {createdAt:dd MMMM yyyy}";
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Failed to load profile: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Error loading profile: " + ex.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        
         }
-
         private void BackToBookingsButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new BookingPage());

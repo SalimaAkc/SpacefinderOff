@@ -9,48 +9,75 @@ using System.Windows;
 
 namespace SpacefinderOff.Views
 {
-    public partial class ForgotPasswordPage
+    public partial class ForgotPasswordPage 
     {
+        private string verificationCode;
+
         public ForgotPasswordPage()
         {
             InitializeComponent();
         }
         private void SendLinkButton_Click(object sender, RoutedEventArgs e)
         {
-            string userEmail = EmailTextBox.Text;
 
-            if (string.IsNullOrWhiteSpace(userEmail))
+
+            string email = EmailTextBox.Text.Trim();
+
+            if (!email.EndsWith("@student.thomasmore.be") && !email.EndsWith("@thomasmore.be"))
             {
-                MessageBox.Show("Please enter your school email address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Only Thomas More emails are allowed.");
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                MessageBox.Show("Please enter your school email.");
+                return;
+            }
+
+            Random random = new Random();
+            verificationCode = random.Next(1000, 9999).ToString();
+
             try
             {
-                SendResetLink(userEmail);
-                MessageBox.Show("Password reset link has been sent to your email.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                SendResetLink(email, verificationCode);
+
+                CodeVerificationPage verificationPage = new CodeVerificationPage(email, verificationCode);
+                this.NavigationService.Navigate(verificationPage);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to send email: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Failed to send email: " + ex.Message);
             }
+
+
         }
 
-        public static void SendResetLink(string recipientEmail)
+        public static void SendResetLink(string recipientEmail, string verificationCode)
         {
-            string fromEmail = "r1059518@student.thomasmore.be";
-            string fromPassword = "My-password";  
-            string subject = "Password Reset Link";
-            string body = "Click here to reset your password: https: https://github.com/SalimaAkc/SpacefinderOff.git.com/reset-password?token=UNIQUE_TOKEN_HERE";
+            var fromAddress = new MailAddress("spacefinder@thomasmore.be", "Spacefinder");
+            var toAddress = new MailAddress(recipientEmail);
+            const string fromPassword = "your_email_password";
+            const string subject = "Your Spacefinder verification code";
+            string body = $"Your verification code is: {verificationCode}";
 
-            SmtpClient client = new("smtp.gmail.com", 587)
+            var smtp = new SmtpClient
             {
-                Credentials = new NetworkCredential(fromEmail, fromPassword),
-                EnableSsl = true
+                Host = "smtp.student.thomasmore.be", 
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword),
+                Timeout = 20000
             };
-
-            MailMessage message = new (fromEmail, recipientEmail, subject, body);
-            client.Send(message);
+            using (var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = subject,
+                Body = body
+            })
+            {
+                smtp.Send(message);
+            }
         }
 
         private void BackToLoginButton_Click(object sender, RoutedEventArgs e)

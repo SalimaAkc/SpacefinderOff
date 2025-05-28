@@ -15,7 +15,5 @@ namespace SpacefinderOff.Views
             InitializeComponent();
         }
 
-
-
     }
 }

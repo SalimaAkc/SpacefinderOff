@@ -73,7 +73,7 @@ namespace SpacefinderOff.Views
                     MySqlCommand insertCmd = new MySqlCommand(insertQuery, conn);
                     insertCmd.Parameters.AddWithValue("@FullName", fullName);
                     insertCmd.Parameters.AddWithValue("@Email", email);
-                    insertCmd.Parameters.AddWithValue("@Password", password); // In production, hash this!
+                    insertCmd.Parameters.AddWithValue("@Password", password);
                     insertCmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
 
                     insertCmd.ExecuteNonQuery();

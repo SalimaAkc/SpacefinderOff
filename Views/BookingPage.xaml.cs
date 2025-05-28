@@ -17,6 +17,7 @@ namespace SpacefinderOff.Views
         private TimeSpan selectedStartTime;
         private TimeSpan selectedEndTime;
         private string selectedCampusName;
+        private int selectedPeopleAmount;
 
         public BookingPage()
         {
@@ -27,9 +28,8 @@ namespace SpacefinderOff.Views
         {
             if (PeopleAmountComboBox.SelectedIndex > 0)
             {
-                int numberOfPeople = int.Parse(((ComboBoxItem)PeopleAmountComboBox.SelectedItem).Content.ToString());
-
-                Console.WriteLine("Number of people: " + numberOfPeople);
+                selectedPeopleAmount = int.Parse(((ComboBoxItem)PeopleAmountComboBox.SelectedItem).Content.ToString());
+                Console.WriteLine("Number of people: " + selectedPeopleAmount);
 
             }
             else
@@ -222,7 +222,7 @@ namespace SpacefinderOff.Views
                     cmd.Parameters.AddWithValue("@start", fullStart);
                     cmd.Parameters.AddWithValue("@end", fullEnd);
                     cmd.Parameters.AddWithValue("@date", selectedDate.Date);
-                    cmd.Parameters.AddWithValue("@people", 1);
+                    cmd.Parameters.AddWithValue("@people", selectedPeopleAmount);
                     cmd.Parameters.AddWithValue("@status", "Confirmed");
 
                     cmd.ExecuteNonQuery();
