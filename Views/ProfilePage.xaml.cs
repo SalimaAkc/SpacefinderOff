@@ -35,6 +35,10 @@ namespace SpacefinderOff.Views
                 EmailTextBox.Text = user.Email;
             }
         }
+        private void BackToBookingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new BookingPage());
+        }
 
         private void UploadPhotoButton_Click(object sender, RoutedEventArgs e)
         {
@@ -48,6 +52,21 @@ namespace SpacefinderOff.Views
 
 
         }
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show(
+                "Are you sure you want to log out?",
+                "Confirm Logout",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                AppState.CurrentUser = null;
+                NavigationService?.Navigate(new LoginPage());
+            }
+        }
+
 
         private void UpdateInfoButton_Click(object sender, RoutedEventArgs e)
         {
@@ -64,15 +83,13 @@ namespace SpacefinderOff.Views
 
             if (result == MessageBoxResult.Yes)
             {
-                
-                // Example: DeleteAccountFromDatabase();
 
                 MessageBox.Show("Your account has been deleted.", "Account Deleted", MessageBoxButton.OK, MessageBoxImage.Information);
                 NavigationService.Navigate(new LoginPage());
             }
             else
             {
-                // User cancelled the deletion
+                // User clicks on no
             }
         }
         private void ChangePasswordButton_Click(object sender, RoutedEventArgs e)

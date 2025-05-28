@@ -10,10 +10,9 @@ namespace SpacefinderOff.Models
     public class Number
     {
         public int NumberId { get; set; }
-        public string Value { get; set; } = string.Empty; // e.g., "r123456" or "u654321"
+        public string Value { get; set; } = string.Empty; // "r1234567" 
         public UserType UserType { get; set; }
 
-        // Navigation property for EF Core
         public ICollection<User> Users { get; set; } = new List<User>();
     }
 }

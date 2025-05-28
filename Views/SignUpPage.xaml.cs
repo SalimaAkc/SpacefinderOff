@@ -50,7 +50,7 @@ namespace SpacefinderOff.Views
                 return;
             }
 
-            string connectionString = "server=localhost;port=3306;user=root;password=;database=SpaceFinderAppDB;";
+            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {

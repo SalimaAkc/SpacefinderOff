@@ -9,7 +9,7 @@ namespace SpacefinderOff.Models
 {
     public class User
     {
-        public int UserId { get; set; }  
+        public int UserID { get; set; }  
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
@@ -21,10 +21,8 @@ namespace SpacefinderOff.Models
 
         public int? NumberId { get; set; }
 
-        // Navigation property
         public Number? Number { get; set; }
 
-        // Helper to access type and number directly
         public UserType? UserType => Number?.UserType;
         public string? UserNumber => Number?.Value;
     }

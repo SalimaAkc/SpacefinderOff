@@ -36,7 +36,7 @@ namespace SpacefinderOff.Views
                 return;
             }
 
-            string connectionString = "server=localhost;port=3306;user=root;password=;database=SpaceFinderAppDB;";
+            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -44,14 +44,28 @@ namespace SpacefinderOff.Views
                 {
                     conn.Open();
 
-                    string query = "SELECT * FROM Users WHERE email=@Email AND password=@Password";
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@Email", email);
-                    cmd.Parameters.AddWithValue("@Password", password);
+                    string checkEmailQuery = "SELECT * FROM Users WHERE email = @Email";
+                    MySqlCommand checkEmailCmd = new MySqlCommand(checkEmailQuery, conn);
+                    checkEmailCmd.Parameters.AddWithValue("@Email", email);
 
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    MySqlDataReader emailReader = checkEmailCmd.ExecuteReader();
 
-                    if (reader.HasRows)
+                    if (!emailReader.HasRows)
+                    {
+                        MessageBox.Show("This email is not registered.", "Account Not Found", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    emailReader.Close();
+
+                    string checkPasswordQuery = "SELECT * FROM Users WHERE email = @Email AND password = @Password";
+                    MySqlCommand checkPasswordCmd = new MySqlCommand(checkPasswordQuery, conn);
+                    checkPasswordCmd.Parameters.AddWithValue("@Email", email);
+                    checkPasswordCmd.Parameters.AddWithValue("@Password", password);
+
+                    MySqlDataReader passwordReader = checkPasswordCmd.ExecuteReader();
+
+                    if (passwordReader.HasRows)
                     {
                         MessageBox.Show("Login successful!");
 
@@ -60,19 +74,17 @@ namespace SpacefinderOff.Views
                     }
                     else
                     {
-                        MessageBox.Show("Incorrect email or password.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Incorrect password.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Database error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-
-
             }
 
-
         }
+
         private void SignUpButton_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService?.Navigate(new SignUpPage());
