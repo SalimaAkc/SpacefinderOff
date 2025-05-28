@@ -10,7 +10,7 @@ namespace SpacefinderOff.Services
     {
         public static bool IsValidThomasMoreEmail(string email)
         {
-            return email.EndsWith("@student.thomasmore.be") || email.EndsWith("@teacher.thomasmore.be");
+            return email.EndsWith("@student.thomasmore.be") || email.EndsWith("@thomasmore.be");
         }
     }
 }

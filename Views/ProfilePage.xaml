@@ -94,14 +94,15 @@
                                Foreground="#6B7280"
                                HorizontalAlignment="Center"
                                Margin="0,0,0,15"/>
+                        
+                        <TextBlock Name="RegistrationDateTextBlock"
+                                FontSize="12"
+                                Foreground="#6B7280"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,10"/>
 
-                    <TextBlock Text="Member Since: 24 September 2019"
-                               FontSize="12"
-                               Foreground="#6B7280"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,40"/>
 
-                    <Button Name="LogoutButton"
+                        <Button Name="LogoutButton"
                             Content="Log Out"
                             Background="#3B82F6"
                             Foreground="White"

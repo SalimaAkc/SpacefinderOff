@@ -19,12 +19,6 @@ namespace SpacefinderOff.Models
 
         public string? FullName { get; set; }
 
-        public int? NumberId { get; set; }
-
-        public Number? Number { get; set; }
-
-        public UserType? UserType => Number?.UserType;
-        public string? UserNumber => Number?.Value;
     }
 
     

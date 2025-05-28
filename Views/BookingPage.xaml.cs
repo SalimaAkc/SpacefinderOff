@@ -108,7 +108,6 @@ namespace SpacefinderOff.Views
             {
                 connection.Open();
 
-                // Get campus ID
                 int campusId = GetCampusIdByName(campusName, connection);
 
                 var query = @"
@@ -205,7 +204,7 @@ namespace SpacefinderOff.Views
                 {
                     connection.Open();
 
-                    // Get classroom ID by room number and campus
+                    
                     int campusId = GetCampusIdByName(selectedCampusName, connection);
                     int classroomId = GetClassroomIdByRoomNumber(roomNumber, campusId, connection);
 
@@ -232,16 +231,16 @@ namespace SpacefinderOff.Views
                 MessageBox.Show($"Room {roomNumber} booked successfully!", "Success",
                               MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // Refresh the available rooms list
+                
                 ConfirmButton_Click(null, null);
             }
             catch (MySqlException ex)
             {
-                if (ex.Number == 1062) // Duplicate entry error
+                if (ex.Number == 1062)
                 {
                     MessageBox.Show("This room is no longer available for the selected time. Please choose another room.",
                                   "Booking Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    // Refresh the list
+                    
                     ConfirmButton_Click(null, null);
                 }
                 else

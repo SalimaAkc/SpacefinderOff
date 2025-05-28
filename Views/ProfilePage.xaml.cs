@@ -22,19 +22,44 @@ namespace SpacefinderOff.Views
         public ProfilePage()
         {
             InitializeComponent();
-            LoadUserInfo();
+            LoadUserProfile();
         }
-        private void LoadUserInfo()
+        private void LoadUserProfile()
         {
-            var user = AppState.CurrentUser;
+            string email = AppState.CurrentUser.Email;
+            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
 
-            if (user != null)
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                FullNameLabel.Text = user.FullName;
-                UserNameLabel.Text = user.UserName;
-                EmailTextBox.Text = user.Email;
+                try
+                {
+                    conn.Open();
+
+                    string query = "SELECT fullName, email, created_at FROM Users WHERE email = @Email";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            string fullName = reader.GetString("fullName");
+                            string userEmail = reader.GetString("email");
+                            DateTime createdAt = reader.GetDateTime("created_at");
+
+                            FullNameLabel.Text = fullName;
+                            EmailTextBox.Text = userEmail;
+                            RegistrationDateTextBlock.Text = createdAt.ToString("dd MMM yyyy");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to load profile: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
+
         private void BackToBookingsButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new BookingPage());

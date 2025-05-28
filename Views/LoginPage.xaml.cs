@@ -31,7 +31,7 @@ namespace SpacefinderOff.Views
             }
             if (!EmailValidator.IsValidThomasMoreEmail(email))
             {
-                MessageBox.Show("Only @student.thomasmore.be or @teacher.thomasmore.be emails are allowed.",
+                MessageBox.Show("Only @student.thomasmore.be or @thomasmore.be emails are allowed.",
                                 "Invalid Email", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }

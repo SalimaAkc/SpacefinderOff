@@ -27,7 +27,7 @@ namespace SpacefinderOff.Views
 
             if (!EmailValidator.IsValidThomasMoreEmail(email))
             {
-                MessageBox.Show("Please use your school email address ending with '@student.thomasmore.be' or '@teacher.thomasmore.be'.",
+                MessageBox.Show("Please use your school email address ending with '@student.thomasmore.be' or '@thomasmore.be'.",
                                 "Invalid Email",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Warning);
@@ -58,7 +58,6 @@ namespace SpacefinderOff.Views
                 {
                     conn.Open();
 
-                    // Check if user already exists
                     string checkQuery = "SELECT COUNT(*) FROM Users WHERE email = @Email";
                     MySqlCommand checkCmd = new MySqlCommand(checkQuery, conn);
                     checkCmd.Parameters.AddWithValue("@Email", email);
@@ -70,18 +69,18 @@ namespace SpacefinderOff.Views
                         return;
                     }
 
-                    // Add new user
-                    string insertQuery = "INSERT INTO Users (fullName, email, password) VALUES (@FullName, @Email, @Password)";
+                    string insertQuery = "INSERT INTO Users (fullName, email, password, created_at) VALUES (@FullName, @Email, @Password, @CreatedAt)";
                     MySqlCommand insertCmd = new MySqlCommand(insertQuery, conn);
                     insertCmd.Parameters.AddWithValue("@FullName", fullName);
                     insertCmd.Parameters.AddWithValue("@Email", email);
                     insertCmd.Parameters.AddWithValue("@Password", password); // In production, hash this!
+                    insertCmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
 
                     insertCmd.ExecuteNonQuery();
 
                     MessageBox.Show("Registration successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // Optionally set user session state (if you're tracking current user in AppState)
+                     
                     AppState.CurrentUser = new User
                     {
                         FullName = fullName,

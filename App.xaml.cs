@@ -18,7 +18,7 @@ namespace SpacefinderOff
             var services = new ServiceCollection();
 
             services.AddDbContext<SpacefinderContext>(options =>
-                options.UseMySql( // Fixed method name
+                options.UseMySql(
                     "server=localhost;database=SpacefinderAppDB;user=root;password=;",
                     new MySqlServerVersion(new Version(8, 0, 21))
                 ));
