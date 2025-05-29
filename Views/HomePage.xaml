@@ -35,13 +35,39 @@
                     <TextBlock Text="• Manage your profile and preferences easily" FontSize="14" Foreground="#2C3E50" Margin="0,5"/>
                 </StackPanel>
 
-                <TextBlock Text="Log in now and take control of your study environment. Your ideal space is just a few clicks away!"
+                <TextBlock Text="Take control of your study environment. Your ideal space is just a few clicks away!"
                            FontSize="16" 
                            FontWeight="Bold" 
                            Foreground="#007ACC"
                            TextWrapping="Wrap" 
                            TextAlignment="Center"
                            Margin="0,10,0,30"/>
+
+                <StackPanel x:Name="AuthenticatedButtonsPanel"
+                            Orientation="Vertical"
+                            HorizontalAlignment="Center"
+                            Margin="0,10,0,30"
+                            Visibility="Collapsed">
+
+                    <Button Content="Go to Booking Page"
+                            Width="200" Height="45"
+                            Background="#007ACC"
+                            Foreground="White"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Margin="0,0,0,15"
+                            Click="BookingButton_Click"/>
+
+                    <Button Content="Go to Profile Page"
+                            Width="200" Height="45"
+                            Background="#007ACC"
+                            Foreground="White"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Click="ProfileButton_Click"/>
+                </StackPanel>
+
+
             </StackPanel>
         </ScrollViewer>
     </Grid>

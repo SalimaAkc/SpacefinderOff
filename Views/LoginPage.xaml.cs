@@ -71,6 +71,8 @@ namespace SpacefinderOff.Views
 
                             MessageBox.Show("Login successful!");
 
+                            App.Current.Properties["IsLoggedIn"] = true;
+
                             var bookingPage = new BookingPage();
                             this.NavigationService?.Navigate(bookingPage);
                         }

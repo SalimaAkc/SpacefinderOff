@@ -1,4 +1,5 @@
-﻿using SpacefinderOff.Views;
+﻿using SpacefinderOff.Services;
+using SpacefinderOff.Views;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,6 +42,10 @@ namespace SpacefinderOff
                 isLoggedIn = false;
                 loggedInUserEmail = "";
                 AuthButton.Content = "Login";
+
+                App.Current.Properties["IsLoggedIn"] = false;
+                AppState.CurrentUser = null;
+
                 MessageBox.Show("Logged out successfully.");
 
                 var loginPage = new LoginPage();
