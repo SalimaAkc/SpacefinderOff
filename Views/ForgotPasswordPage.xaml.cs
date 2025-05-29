@@ -55,7 +55,7 @@ namespace SpacefinderOff.Views
 
         public static void SendResetLink(string recipientEmail, string verificationCode)
         {
-            var fromAddress = new MailAddress("spacefinder@thomasmore.be", "Spacefinder");
+            var fromAddress = new MailAddress("spacefinder@office365.com", "Spacefinder");
             var toAddress = new MailAddress(recipientEmail);
             const string fromPassword = "your_email_password";
             const string subject = "Your Spacefinder verification code";
@@ -63,7 +63,7 @@ namespace SpacefinderOff.Views
 
             var smtp = new SmtpClient
             {
-                Host = "smtp.student.thomasmore.be", 
+                Host = "smtp.office365.com", 
                 Port = 587,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,

@@ -17,14 +17,14 @@
                 BorderThickness="0"
                 Cursor="Hand" Click="HomeButton_Click"/>
 
-        <Button Name="LoginButton" 
+        <Button Name="AuthButton" 
                 Content="Login" 
                 Margin="5"
                 Padding="50,30"
                 Background="#5E81AC"
                 Foreground="White"
                 BorderThickness="0"
-                Cursor="Hand" Click="LoginButton_Click"/>
+                Cursor="Hand" Click="AuthButton_Click"/>
 
     </WrapPanel>
         

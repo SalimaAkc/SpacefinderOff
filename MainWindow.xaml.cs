@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using SpacefinderOff.Views;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -13,6 +14,9 @@ namespace SpacefinderOff
 {
     public partial class MainWindow : Window
     {
+        private bool isLoggedIn = false;
+        private string loggedInUserEmail = "";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -23,10 +27,34 @@ namespace SpacefinderOff
 
         }
 
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private void AuthButton_Click(object sender, RoutedEventArgs e)
         {
-            MainFrame.Navigate(new Views.LoginPage());
+            if (!isLoggedIn)
+            {
+                
+                var loginPage = new LoginPage(); 
+                loginPage.LoginSuccessful += OnLoginSuccessful;
+                MainFrame.Content = loginPage;
+            }
+            else
+            {
+                isLoggedIn = false;
+                loggedInUserEmail = "";
+                AuthButton.Content = "Login";
+                MessageBox.Show("Logged out successfully.");
 
+                var loginPage = new LoginPage();
+                loginPage.LoginSuccessful += OnLoginSuccessful;
+                MainFrame.Content = loginPage;
+            }
+        }
+
+        private void OnLoginSuccessful(string email)
+        {
+            isLoggedIn = true;
+            loggedInUserEmail = email;
+            AuthButton.Content = "Logout";
+            MessageBox.Show($"Welcome, {email}!");
         }
 
 

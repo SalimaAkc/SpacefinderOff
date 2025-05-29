@@ -5,14 +5,14 @@ using System.Windows.Controls;
 using MySql.Data.MySqlClient; 
 using System.Globalization;
 using SpacefinderOff.Models;
+using SpacefinderOff.Services;
 
 namespace SpacefinderOff.Views
 {
     public partial class BookingPage : Page
     {
 
-        private readonly int currentUserId = 1;
-        private const string ConnectionString = "server=localhost;database=SpacefinderAppDB;user=root;password=;"; 
+        private const string ConnectionString = "server=localhost;database=SpacefinderAppDB;user=root;password=;";
         private DateTime selectedDate;
         private TimeSpan selectedStartTime;
         private TimeSpan selectedEndTime;
@@ -22,6 +22,14 @@ namespace SpacefinderOff.Views
         public BookingPage()
         {
             InitializeComponent();
+
+            if (AppState.CurrentUser == null)
+            {
+                MessageBox.Show("Please log in to access this page.", "Authentication Required",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                this.NavigationService?.Navigate(new LoginPage());
+                return;
+            }
         }
 
         private void ConfirmButton_Click(object sender, RoutedEventArgs e)
@@ -30,7 +38,6 @@ namespace SpacefinderOff.Views
             {
                 selectedPeopleAmount = int.Parse(((ComboBoxItem)PeopleAmountComboBox.SelectedItem).Content.ToString());
                 Console.WriteLine("Number of people: " + selectedPeopleAmount);
-
             }
             else
             {
@@ -48,7 +55,7 @@ namespace SpacefinderOff.Views
                 EndTimeComboBox.SelectedIndex <= 0)
             {
                 MessageBox.Show("Please select all options before confirming.", "Incomplete Selection",
-                             MessageBoxButton.OK, MessageBoxImage.Warning);
+                              MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -72,35 +79,33 @@ namespace SpacefinderOff.Views
                     return;
                 }
 
+                var availableRooms = GetAvailableRooms(selectedCampusName, selectedDate, selectedStartTime, selectedEndTime);
 
-                    var availableRooms = GetAvailableRooms(selectedCampusName, selectedDate, selectedStartTime, selectedEndTime);
-
-                    if (availableRooms.Count == 0)
-                    {
-                        AvailableRoomsListBox.Items.Add("No rooms available for the selected time.");
-                    }
-                    else
-                    {
-                        foreach (var room in availableRooms)
-                        {
-                            AvailableRoomsListBox.Items.Add($"{room.RoomNumber} (Capacity: {room.Capacity})");
-                        }
-                    }
-                }
-
-                catch (FormatException ex)
+                if (availableRooms.Count == 0)
                 {
-                    MessageBox.Show($"Invalid date/time format: {ex.Message}", "Error",
-                                  MessageBoxButton.OK, MessageBoxImage.Error);
+                    AvailableRoomsListBox.Items.Add("No rooms available for the selected time.");
                 }
-                catch (MySqlException ex)
+                else
                 {
-                    MessageBox.Show($"Database error: {ex.Message}", "Error",
-                                  MessageBoxButton.OK, MessageBoxImage.Error);
+                    foreach (var room in availableRooms)
+                    {
+                        AvailableRoomsListBox.Items.Add($"{room.RoomNumber} (Capacity: {room.Capacity})");
+                    }
                 }
             }
+            catch (FormatException ex)
+            {
+                MessageBox.Show($"Invalid date/time format: {ex.Message}", "Error",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show($"Database error: {ex.Message}", "Error",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-            private List<Classroom> GetAvailableRooms(string campusName, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+        private List<Classroom> GetAvailableRooms(string campusName, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
         {
             var availableRooms = new List<Classroom>();
 
@@ -204,7 +209,6 @@ namespace SpacefinderOff.Views
                 {
                     connection.Open();
 
-                    
                     int campusId = GetCampusIdByName(selectedCampusName, connection);
                     int classroomId = GetClassroomIdByRoomNumber(roomNumber, campusId, connection);
 
@@ -212,26 +216,30 @@ namespace SpacefinderOff.Views
                     var fullEnd = selectedDate.Date + selectedEndTime;
 
                     var cmd = new MySqlCommand(
-                        @"INSERT INTO Bookings 
-                        (user_id, classroom_id, start_time, end_time, booking_date, people_amount, status)
+                         @"INSERT INTO Bookings 
+                        (user_id, classroom_id, start_time, end_time, booking_date, people_amount, status, created_at)
                         VALUES
-                        (@userId, @classroomId, @start, @end, @date, @people, @status)", connection);
+                        (@userId, @classroomId, @start, @end, @date, @people, @status, @createdAt)", connection);
 
-                    cmd.Parameters.AddWithValue("@userId", currentUserId);
+                    cmd.Parameters.AddWithValue("@userId", AppState.CurrentUser.UserID); 
                     cmd.Parameters.AddWithValue("@classroomId", classroomId);
                     cmd.Parameters.AddWithValue("@start", fullStart);
                     cmd.Parameters.AddWithValue("@end", fullEnd);
                     cmd.Parameters.AddWithValue("@date", selectedDate.Date);
                     cmd.Parameters.AddWithValue("@people", selectedPeopleAmount);
                     cmd.Parameters.AddWithValue("@status", "Confirmed");
+                    cmd.Parameters.AddWithValue("@createdAt", DateTime.Now);
 
                     cmd.ExecuteNonQuery();
                 }
 
-                MessageBox.Show($"Room {roomNumber} booked successfully!", "Success",
-                              MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Room {roomNumber} booked successfully!\n\n" +
+                       $"Date: {selectedDate:dd MMMM yyyy}\n" +
+                       $"Time: {selectedStartTime:hh\\:mm} - {selectedEndTime:hh\\:mm}\n" +
+                       $"People: {selectedPeopleAmount}\n" +
+                       $"Status: Confirmed",
+                       "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                
                 ConfirmButton_Click(null, null);
             }
             catch (MySqlException ex)
@@ -240,7 +248,7 @@ namespace SpacefinderOff.Views
                 {
                     MessageBox.Show("This room is no longer available for the selected time. Please choose another room.",
                                   "Booking Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    
+
                     ConfirmButton_Click(null, null);
                 }
                 else
@@ -271,5 +279,4 @@ namespace SpacefinderOff.Views
             this.NavigationService?.Navigate(new ProfilePage());
         }
     }
-
 }

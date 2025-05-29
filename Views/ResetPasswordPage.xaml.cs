@@ -57,7 +57,7 @@ namespace SpacefinderOff.Views
 
                 string query = "UPDATE users SET password = @password WHERE email = @mail";
                 MySqlCommand command = new MySqlCommand(query, connection);
-                command.Parameters.AddWithValue("@password", newPassword); // You can hash it here if you want
+                command.Parameters.AddWithValue("@password", newPassword); 
                 command.Parameters.AddWithValue("@mail", email);
 
                 int rowsAffected = command.ExecuteNonQuery();

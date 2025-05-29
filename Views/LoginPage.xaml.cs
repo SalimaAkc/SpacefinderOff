@@ -12,7 +12,7 @@ namespace SpacefinderOff.Views
 {
     public partial class LoginPage
     {
-        
+        public event Action<string> LoginSuccessful;
 
         public LoginPage()
         {
@@ -23,6 +23,15 @@ namespace SpacefinderOff.Views
         {
             string email = EmailTextBox.Text.Trim();
             string password = PasswordBox.Password.Trim();
+
+            if (email.EndsWith("@student.thomasmore.be") || email.EndsWith("@teacher.thomasmore.be"))
+            {
+                LoginSuccessful?.Invoke(email); 
+            }
+            else
+            {
+                MessageBox.Show("Invalid email or password.");
+            }
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
@@ -44,37 +53,31 @@ namespace SpacefinderOff.Views
                 {
                     conn.Open();
 
-                    string checkEmailQuery = "SELECT * FROM Users WHERE email = @Email";
-                    MySqlCommand checkEmailCmd = new MySqlCommand(checkEmailQuery, conn);
-                    checkEmailCmd.Parameters.AddWithValue("@Email", email);
-
-                    MySqlDataReader emailReader = checkEmailCmd.ExecuteReader();
-
-                    if (!emailReader.HasRows)
+                    string getUserQuery = "SELECT user_id, fullName, email, created_at FROM Users WHERE email = @Email AND password = @Password";
+                    MySqlCommand getUserCmd = new MySqlCommand(getUserQuery, conn);
+                    getUserCmd.Parameters.AddWithValue("@Email", email);
+                    getUserCmd.Parameters.AddWithValue("@Password", password);
+                    
+                    using (MySqlDataReader reader = getUserCmd.ExecuteReader())
                     {
-                        MessageBox.Show("This email is not registered.", "Account Not Found", MessageBoxButton.OK, MessageBoxImage.Information);
-                        return;
-                    }
+                        if (reader.Read())
+                        {
+                            AppState.CurrentUser = new User
+                            {
+                                UserID = reader.GetInt32("user_id"),
+                                FullName = reader.GetString("fullName"),
+                                Email = reader.GetString("email")
+                            };
 
-                    emailReader.Close();
+                            MessageBox.Show("Login successful!");
 
-                    string checkPasswordQuery = "SELECT * FROM Users WHERE email = @Email AND password = @Password";
-                    MySqlCommand checkPasswordCmd = new MySqlCommand(checkPasswordQuery, conn);
-                    checkPasswordCmd.Parameters.AddWithValue("@Email", email);
-                    checkPasswordCmd.Parameters.AddWithValue("@Password", password);
-
-                    MySqlDataReader passwordReader = checkPasswordCmd.ExecuteReader();
-
-                    if (passwordReader.HasRows)
-                    {
-                        MessageBox.Show("Login successful!");
-
-                        var bookingPage = new BookingPage();
-                        this.NavigationService?.Navigate(bookingPage);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Incorrect password.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                            var bookingPage = new BookingPage();
+                            this.NavigationService?.Navigate(bookingPage);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Invalid email or password.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -82,9 +85,7 @@ namespace SpacefinderOff.Views
                     MessageBox.Show("Database error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-
         }
-
         private void SignUpButton_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService?.Navigate(new SignUpPage());
