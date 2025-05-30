@@ -18,8 +18,8 @@
                          Margin="0,30,0,20" Width="200" TextAlignment="Center"/>
 
                 <Button Content="Verify"
-                        Name="VerifyButton"
-                        Click="VerifyButton_Click"
+                        Name="VerifyCode"
+                        Click="VerifyCode_Click"
                         Padding="10" FontSize="16"
                         Background="#007ACC"
                         Foreground="White"/>

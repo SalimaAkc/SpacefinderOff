@@ -1,4 +1,5 @@
-﻿using SpacefinderOff.Models;
+﻿using MySql.Data.MySqlClient;
+using SpacefinderOff.Models;
 using SpacefinderOff.Services;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using MySql.Data.MySqlClient;
+using System.Windows.Controls;
 
 namespace SpacefinderOff.Views
 {
@@ -22,7 +23,8 @@ namespace SpacefinderOff.Views
         private void SignInButton_Click(object sender, RoutedEventArgs e)
         {
             string email = EmailTextBox.Text.Trim();
-            string password = PasswordBox.Password.Trim();
+            string password = PasswordHidden.Password.Trim();
+
 
             if (email.EndsWith("@student.thomasmore.be") || email.EndsWith("@teacher.thomasmore.be"))
             {
@@ -53,7 +55,7 @@ namespace SpacefinderOff.Views
                 {
                     conn.Open();
 
-                    string getUserQuery = "SELECT user_id, fullName, email, created_at FROM Users WHERE email = @Email AND password = @Password";
+                    string getUserQuery = "SELECT user_id, fullname, email, created_at FROM Users WHERE email = @Email AND password = @Password";
                     MySqlCommand getUserCmd = new MySqlCommand(getUserQuery, conn);
                     getUserCmd.Parameters.AddWithValue("@Email", email);
                     getUserCmd.Parameters.AddWithValue("@Password", password);
@@ -65,7 +67,7 @@ namespace SpacefinderOff.Views
                             AppState.CurrentUser = new User
                             {
                                 UserID = reader.GetInt32("user_id"),
-                                FullName = reader.GetString("fullName"),
+                                FullName = reader.GetString("fullname"),
                                 Email = reader.GetString("email")
                             };
 
@@ -88,6 +90,42 @@ namespace SpacefinderOff.Views
                 }
             }
         }
+        private void TogglePasswordVisibilityButton_Checked(object sender, RoutedEventArgs e)
+        {
+            PasswordVisible.Visibility = Visibility.Visible;
+            PasswordHidden.Visibility = Visibility.Collapsed;
+            PasswordVisible.Text = PasswordHidden.Password;
+
+            EyeOutline.Visibility = Visibility.Collapsed;
+            EyeFilled.Visibility = Visibility.Visible;
+        }
+
+        private void TogglePasswordVisibilityButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            PasswordVisible.Visibility = Visibility.Collapsed;
+            PasswordHidden.Visibility = Visibility.Visible;
+            PasswordHidden.Password = PasswordVisible.Text;
+
+            EyeOutline.Visibility = Visibility.Visible;
+            EyeFilled.Visibility = Visibility.Collapsed;
+        }
+
+        private void PasswordHidden_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (TogglePasswordVisibilityButton.IsChecked == true)
+            {
+                PasswordVisible.Text = PasswordHidden.Password;
+            }
+        }
+
+        private void PasswordVisible_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (TogglePasswordVisibilityButton.IsChecked == false)
+            {
+                PasswordHidden.Password = PasswordVisible.Text;
+            }
+        }
+
         private void SignUpButton_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService?.Navigate(new SignUpPage());

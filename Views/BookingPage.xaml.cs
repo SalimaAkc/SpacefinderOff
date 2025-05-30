@@ -1,16 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using MySql.Data.MySqlClient; 
-using System.Globalization;
+﻿using MySql.Data.MySqlClient; 
 using SpacefinderOff.Models;
 using SpacefinderOff.Services;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace SpacefinderOff.Views
 {
     public partial class BookingPage : Page
     {
+        public class RoomAvailability
+        {
+            public Classroom Room { get; set; }
+            public string Status { get; set; } 
+            public string CourseNames { get; set; }
+        }
 
         private const string ConnectionString = "server=localhost;database=SpacefinderAppDB;user=root;password=;";
         private DateTime selectedDate;
@@ -79,17 +86,45 @@ namespace SpacefinderOff.Views
                     return;
                 }
 
-                var availableRooms = GetAvailableRooms(selectedCampusName, selectedDate, selectedStartTime, selectedEndTime);
+                var roomAvailabilities = GetRoomAvailability(
+                    selectedCampusName,
+                    selectedDate,
+                    selectedStartTime,
+                    selectedEndTime
+                );
 
-                if (availableRooms.Count == 0)
+                if (roomAvailabilities.Count == 0)
                 {
-                    AvailableRoomsListBox.Items.Add("No rooms available for the selected time.");
+                    AvailableRoomsListBox.Items.Add("No rooms found for the selected campus.");
                 }
                 else
                 {
-                    foreach (var room in availableRooms)
+                    foreach (var roomAvail in roomAvailabilities)
                     {
-                        AvailableRoomsListBox.Items.Add($"{room.RoomNumber} (Capacity: {room.Capacity})");
+                        var listBoxItem = new ListBoxItem();
+                        listBoxItem.Tag = roomAvail; 
+
+                        switch (roomAvail.Status)
+                        {
+                            case "Available":
+                                listBoxItem.Content = $"{roomAvail.Room.RoomNumber} (Capacity: {roomAvail.Room.Capacity})";
+                                listBoxItem.Background = new SolidColorBrush(
+                                    Color.FromArgb(0x7F, 0x00, 0xFF, 0x00)); 
+                                break;
+
+                            case "Scheduled":
+                                listBoxItem.Content = $"{roomAvail.Room.RoomNumber} (Capacity: {roomAvail.Room.Capacity}) - Class: {roomAvail.CourseNames}";
+                                listBoxItem.Background = new SolidColorBrush(
+                                    Color.FromArgb(0x7F, 0xFF, 0x00, 0x00)); 
+                                break;
+
+                            case "Booked":
+                                listBoxItem.Content = $"{roomAvail.Room.RoomNumber} (Capacity: {roomAvail.Room.Capacity}) - Already Booked";
+                                listBoxItem.Background = new SolidColorBrush(Colors.LightGray);
+                                break;
+                        }
+
+                        AvailableRoomsListBox.Items.Add(listBoxItem);
                     }
                 }
             }
@@ -105,41 +140,44 @@ namespace SpacefinderOff.Views
             }
         }
 
-        private List<Classroom> GetAvailableRooms(string campusName, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+        private List<RoomAvailability> GetRoomAvailability(string campusName, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
         {
-            var availableRooms = new List<Classroom>();
+            var rooms = new List<RoomAvailability>();
 
             using (var connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();
-
                 int campusId = GetCampusIdByName(campusName, connection);
 
-                var query = @"
-                    SELECT c.classroom_id, c.room_number, c.capacity
-                    FROM Classrooms c
-                    WHERE c.campus_id = @campusId
-                    AND c.classroom_id NOT IN (
-                        SELECT b.classroom_id 
-                        FROM Bookings b 
-                        WHERE DATE(b.booking_date) = DATE(@bookingDate)
-                        AND b.status = 'Confirmed'
-                        AND NOT (
-                            TIME(b.end_time) <= @startTime OR 
-                            TIME(b.start_time) >= @endTime
-                        )
-                    )
-                    AND c.classroom_id NOT IN (
-                        SELECT s.classroom_id 
-                        FROM Schedules s 
-                        WHERE @bookingDate BETWEEN s.start_date AND s.end_date
-                        AND s.day_of_week = @dayOfWeek
-                        AND NOT (
-                            s.end_time <= @startTime OR 
-                            s.start_time >= @endTime
-                        )
-                    )
-                    ORDER BY c.room_number";
+                string query = @"
+            SELECT 
+                c.classroom_id, 
+                c.room_number, 
+                c.capacity,
+                GROUP_CONCAT(DISTINCT s.course_name SEPARATOR ', ') AS course_names,
+                CASE 
+                    WHEN b.classroom_id IS NOT NULL THEN 'Booked'
+                    WHEN s.classroom_id IS NOT NULL THEN 'Scheduled'
+                    ELSE 'Available'
+                END AS status
+            FROM Classrooms c
+            LEFT JOIN (
+                SELECT classroom_id 
+                FROM Bookings 
+                WHERE DATE(booking_date) = DATE(@bookingDate)
+                AND status = 'Confirmed'
+                AND NOT (end_time <= @startTime OR start_time >= @endTime)
+            ) b ON c.classroom_id = b.classroom_id
+            LEFT JOIN (
+                SELECT classroom_id, course_name 
+                FROM Schedules 
+                WHERE @bookingDate BETWEEN start_date AND end_date
+                AND day_of_week = @dayOfWeek
+                AND NOT (end_time <= @startTime OR start_time >= @endTime)
+            ) s ON c.classroom_id = s.classroom_id
+            WHERE c.campus_id = @campusId
+            GROUP BY c.classroom_id, c.room_number, c.capacity
+            ORDER BY c.room_number";
 
                 using (var cmd = new MySqlCommand(query, connection))
                 {
@@ -153,18 +191,24 @@ namespace SpacefinderOff.Views
                     {
                         while (reader.Read())
                         {
-                            availableRooms.Add(new Classroom
+                            rooms.Add(new RoomAvailability
                             {
-                                ClassroomID = reader.GetInt32("classroom_id"),
-                                RoomNumber = reader.GetString("room_number"),
-                                Capacity = reader.GetInt32("capacity")
+                                Room = new Classroom
+                                {
+                                    ClassroomID = reader.GetInt32("classroom_id"),
+                                    RoomNumber = reader.GetString("room_number"),
+                                    Capacity = reader.GetInt32("capacity")
+                                },
+                                Status = reader.GetString("status"),
+                                CourseNames = reader.IsDBNull(reader.GetOrdinal("course_names"))
+                                            ? ""
+                                            : reader.GetString("course_names")
                             });
                         }
                     }
                 }
             }
-
-            return availableRooms;
+            return rooms;
         }
 
         private int GetCampusIdByName(string campusName, MySqlConnection connection)
@@ -182,21 +226,34 @@ namespace SpacefinderOff.Views
 
         private void AvailableRoomsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (AvailableRoomsListBox.SelectedItem != null)
+            if (AvailableRoomsListBox.SelectedItem is ListBoxItem selectedItem)
             {
-                var selectedRoomText = AvailableRoomsListBox.SelectedItem.ToString();
-
-                var roomNumber = selectedRoomText.Split(' ')[0];
-
-                var result = MessageBox.Show(
-                    $"Do you want to book room {roomNumber} on {selectedDate:dd MMMM yyyy} from {selectedStartTime:hh\\:mm} to {selectedEndTime:hh\\:mm}?",
-                    "Confirm Booking",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
+                if (selectedItem.Tag is RoomAvailability roomAvail)
                 {
-                    BookRoom(roomNumber);
+                    if (roomAvail.Status != "Available")
+                    {
+                        string message = roomAvail.Status == "Scheduled"
+                            ? $"Room has scheduled class: {roomAvail.CourseNames}"
+                            : "Room is already booked";
+
+                        MessageBox.Show(message, "Not Available",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        AvailableRoomsListBox.SelectedItem = null;
+                        return;
+                    }
+                    var roomNumber = roomAvail.Room.RoomNumber;
+                    var result = MessageBox.Show(
+                        $"Book room {roomNumber} on {selectedDate:dd MMMM yyyy} " +
+                        $"from {selectedStartTime:hh\\:mm} to {selectedEndTime:hh\\:mm}?",
+                        "Confirm Booking",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        BookRoom(roomNumber);
+                    }
                 }
             }
         }

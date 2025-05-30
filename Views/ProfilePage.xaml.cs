@@ -5,6 +5,7 @@ using SpacefinderOff.Services;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Text;
@@ -34,6 +35,7 @@ namespace SpacefinderOff.Views
 
             LoadUserInfo();
             LoadUserBookings();
+            LoadProfileImageFromDatabase();
         }
 
         private void LoadUserInfo()
@@ -48,7 +50,7 @@ namespace SpacefinderOff.Views
                 {
                     conn.Open();
 
-                    string query = "SELECT user_id, fullName, email, created_at FROM Users WHERE email = @Email";
+                    string query = "SELECT user_id, fullname, email, created_at FROM Users WHERE email = @Email";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@Email", AppState.CurrentUser.Email);
 
@@ -56,7 +58,7 @@ namespace SpacefinderOff.Views
                     {
                         if (reader.Read())
                         {
-                            string fullName = reader["fullName"].ToString();
+                            string fullName = reader["fullname"].ToString();
                             string email = reader["email"].ToString();
                             DateTime createdAt = Convert.ToDateTime(reader["created_at"]);
 
@@ -104,6 +106,7 @@ namespace SpacefinderOff.Views
 
                     string query = @"
                         SELECT 
+                            b.booking_id,
                             b.booking_date,
                             b.start_time,
                             b.end_time,
@@ -141,6 +144,8 @@ namespace SpacefinderOff.Views
                             string campusName = reader["campus_name"].ToString();
                             DateTime createdAt = Convert.ToDateTime(reader["created_at"]);
 
+                            int bookingId = Convert.ToInt32(reader["booking_id"]);
+
                             string bookingInfo = $"Room {roomNumber} - {campusName}\n" +
                                                $"Date: {bookingDate:dd MMMM yyyy}\n" +
                                                $"Time: {startTime:HH:mm} - {endTime:HH:mm}\n" +
@@ -148,17 +153,14 @@ namespace SpacefinderOff.Views
                                                $"Status: {status}\n" +
                                                $"Booked on: {createdAt:dd MMMM yyyy HH:mm}";
 
-                            if (BookingsListBox != null)
+                            BookingsListBox.Items.Add(new ListBoxItem
                             {
-                                BookingsListBox.Items.Add(bookingInfo);
-                            }
-                        }
+                                Content = bookingInfo,
+                                Tag = bookingId  
+                            });
 
-                        if (!hasBookings && BookingsListBox != null)
-                        {
-                            BookingsListBox.Items.Add("No bookings found.");
                         }
-                    }
+                     }
                 }
                 catch (Exception ex)
                 {
@@ -174,22 +176,50 @@ namespace SpacefinderOff.Views
 
         private void CancelBookingButton_Click(object sender, RoutedEventArgs e)
         {
-            if (BookingsListBox.SelectedItem == null)
+            if (BookingsListBox.SelectedItem is ListBoxItem selectedItem)
+            {
+                int bookingId = (int)selectedItem.Tag;
+
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to cancel this booking?",
+                    "Confirm Cancellation",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
+                    using (MySqlConnection conn = new MySqlConnection(connectionString))
+                    {
+                        try
+                        {
+                            conn.Open();
+
+                            string deleteQuery = "DELETE FROM Bookings WHERE booking_id = @BookingId";
+                            MySqlCommand cmd = new MySqlCommand(deleteQuery, conn);
+                            cmd.Parameters.AddWithValue("@BookingId", bookingId);
+                            int rowsAffected = cmd.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                            {
+                                MessageBox.Show("Booking successfully cancelled.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                                LoadUserBookings(); 
+                            }
+                            else
+                            {
+                                MessageBox.Show("Booking could not be found or already cancelled.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error cancelling booking: " + ex.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+            }
+            else
             {
                 MessageBox.Show("Please select a booking to cancel.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            MessageBoxResult result = MessageBox.Show(
-                "Are you sure you want to cancel this booking?",
-                "Confirm Cancellation",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                MessageBox.Show("Booking cancellation feature needs to be implemented with booking IDs.",
-                              "Feature Notice", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -205,13 +235,198 @@ namespace SpacefinderOff.Views
             OpenFileDialog openDialog = new OpenFileDialog();
             openDialog.Filter = "Image files|*.bmp;*.jpg;*.png";
             openDialog.FilterIndex = 1;
+
             if (openDialog.ShowDialog() == true)
             {
-                ProfileImage.Source = new BitmapImage(new Uri(openDialog.FileName));
+                string filePath = openDialog.FileName;
+
+                BitmapImage bitmap = new BitmapImage(new Uri(filePath));
+                ProfileImageBrush.ImageSource = bitmap;
+
+
+                byte[] imageData = File.ReadAllBytes(filePath);
+                SaveProfileImageToDatabase(imageData);
             }
         }
 
+        private void SaveProfileImageToDatabase(byte[] imageBytes)
+        {
+            if (AppState.CurrentUser == null)
+                return;
+
+            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+
+                    string query = "UPDATE Users SET profile_image = @image WHERE user_id = @userId";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@image", imageBytes);
+                    cmd.Parameters.AddWithValue("@userId", AppState.CurrentUser.UserID);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        
+                        UpdateProfilePictureButtons();
+
+                        MessageBox.Show("Profile picture updated successfully!", "Success",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error saving profile image: " + ex.Message, "Database Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void LoadProfileImageFromDatabase()
+        {
+            if (AppState.CurrentUser == null)
+                return;
+
+            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+
+                    string query = "SELECT profile_image FROM Users WHERE user_id = @userId";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@userId", AppState.CurrentUser.UserID);
+
+                    object result = cmd.ExecuteScalar();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        byte[] imageData = (byte[])result;
+
+                        if (imageData.Length > 0)
+                        {
+                            using (var ms = new MemoryStream(imageData))
+                            {
+                                BitmapImage image = new BitmapImage();
+                                image.BeginInit();
+                                image.CacheOption = BitmapCacheOption.OnLoad;
+                                image.StreamSource = ms;
+                                image.EndInit();
+                                image.Freeze();
+
+                                ProfileImageBrush.ImageSource = image;
+                            }
+                        }
+                        else
+                        {
+                            ProfileImageBrush.ImageSource = null;
+                        }
+                    }
+                    else
+                    {
+                        ProfileImageBrush.ImageSource = null;
+                    }
+
+                    UpdateProfilePictureButtons();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error loading profile image: " + ex.Message, "Database Error",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    ProfileImageBrush.ImageSource = null;
+                    UpdateProfilePictureButtons();
+                }
+            }
+        }
+
+
+        private void RemoveProfilePictureButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show(
+        "Are you sure you want to remove your profile picture?",
+        "Confirm Removal",
+        MessageBoxButton.YesNo,
+        MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                RemoveProfileImageFromDatabase();
+            }
+        }
+
+        private void RemoveProfileImageFromDatabase()
+        {
+            if (AppState.CurrentUser == null)
+                return;
+
+            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+
+                    string query = "UPDATE Users SET profile_image = NULL WHERE user_id = @userId";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@userId", AppState.CurrentUser.UserID);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        ProfileImageBrush.ImageSource = null;
+
+                        UpdateProfilePictureButtons();
+
+                        MessageBox.Show("Profile picture removed successfully!", "Success",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to remove profile picture.", "Error",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error removing profile image: " + ex.Message, "Database Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+
+        private bool HasProfilePicture()
+        {
+            return ProfileImageBrush.ImageSource != null;
+        }
+
        
+        private void UpdateProfilePictureButtons()
+        {
+          
+            if (HasProfilePicture())
+            {
+             
+                RemoveProfilePictureButton.Visibility = Visibility.Visible;
+                UploadPhotoButton.Content = "Change Photo";
+            }
+            else
+            {
+               RemoveProfilePictureButton.Visibility = Visibility.Collapsed;
+               UploadPhotoButton.Content = "Upload Photo";
+            }
+        }
+
+
         private void UpdateInfoButton_Click(object sender, RoutedEventArgs e)
         {
             string newFullName = FullNameLabel.Text.Trim();
@@ -328,7 +543,7 @@ namespace SpacefinderOff.Views
                 return;
             }
 
-            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;"; 
+            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -348,7 +563,7 @@ namespace SpacefinderOff.Views
 
                     string storedPassword = result.ToString();
 
-                    if (storedPassword != currentPassword) 
+                    if (storedPassword != currentPassword)
                     {
                         MessageBox.Show("Current password is incorrect.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
@@ -356,7 +571,7 @@ namespace SpacefinderOff.Views
 
                     string updateQuery = "UPDATE users SET password = @NewPassword WHERE email = @Email";
                     MySqlCommand updateCmd = new MySqlCommand(updateQuery, conn);
-                    updateCmd.Parameters.AddWithValue("@NewPassword", newPassword); 
+                    updateCmd.Parameters.AddWithValue("@NewPassword", newPassword);
                     updateCmd.Parameters.AddWithValue("@Email", email);
                     int rowsAffected = updateCmd.ExecuteNonQuery();
 
@@ -390,5 +605,93 @@ namespace SpacefinderOff.Views
         {
             LoadUserBookings();
         }
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender == CurrentPasswordBox && CurrentPasswordToggleButton.IsChecked == true)
+                CurrentPasswordVisibleTextBox.Text = CurrentPasswordBox.Password;
+
+            if (sender == NewPasswordBox && NewPasswordToggleButton.IsChecked == true)
+                NewPasswordVisibleTextBox.Text = NewPasswordBox.Password;
+
+            if (sender == ConfirmNewPasswordBox && ConfirmNewPasswordToggleButton.IsChecked == true)
+                ConfirmNewPasswordVisibleTextBox.Text = ConfirmNewPasswordBox.Password;
+        }
+
+        private void PasswordVisibleTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender == CurrentPasswordVisibleTextBox && CurrentPasswordToggleButton.IsChecked == true)
+                CurrentPasswordBox.Password = CurrentPasswordVisibleTextBox.Text;
+
+            if (sender == NewPasswordVisibleTextBox && NewPasswordToggleButton.IsChecked == true)
+                NewPasswordBox.Password = NewPasswordVisibleTextBox.Text;
+
+            if (sender == ConfirmNewPasswordVisibleTextBox && ConfirmNewPasswordToggleButton.IsChecked == true)
+                ConfirmNewPasswordBox.Password = ConfirmNewPasswordVisibleTextBox.Text;
+        }
+
+        private void PasswordToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender == CurrentPasswordToggleButton)
+            {
+                CurrentPasswordVisibleTextBox.Visibility = Visibility.Visible;
+                CurrentPasswordBox.Visibility = Visibility.Collapsed;
+                CurrentPasswordVisibleTextBox.Text = CurrentPasswordBox.Password;
+
+                CurrentEyeOutline.Visibility = Visibility.Collapsed;
+                CurrentEyeFilled.Visibility = Visibility.Visible;
+            }
+            else if (sender == NewPasswordToggleButton)
+            {
+                NewPasswordVisibleTextBox.Visibility = Visibility.Visible;
+                NewPasswordBox.Visibility = Visibility.Collapsed;
+                NewPasswordVisibleTextBox.Text = NewPasswordBox.Password;
+
+                NewEyeOutline.Visibility = Visibility.Collapsed;
+                NewEyeFilled.Visibility = Visibility.Visible;
+            }
+            else if (sender == ConfirmNewPasswordToggleButton)
+            {
+                ConfirmNewPasswordVisibleTextBox.Visibility = Visibility.Visible;
+                ConfirmNewPasswordBox.Visibility = Visibility.Collapsed;
+                ConfirmNewPasswordVisibleTextBox.Text = ConfirmNewPasswordBox.Password;
+
+                ConfirmEyeOutline.Visibility = Visibility.Collapsed;
+                ConfirmEyeFilled.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void PasswordToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (sender == CurrentPasswordToggleButton)
+            {
+                CurrentPasswordVisibleTextBox.Visibility = Visibility.Collapsed;
+                CurrentPasswordBox.Visibility = Visibility.Visible;
+                CurrentPasswordBox.Password = CurrentPasswordVisibleTextBox.Text;
+
+                CurrentEyeOutline.Visibility = Visibility.Visible;
+                CurrentEyeFilled.Visibility = Visibility.Collapsed;
+            }
+            else if (sender == NewPasswordToggleButton)
+            {
+                NewPasswordVisibleTextBox.Visibility = Visibility.Collapsed;
+                NewPasswordBox.Visibility = Visibility.Visible;
+                NewPasswordBox.Password = NewPasswordVisibleTextBox.Text;
+
+                NewEyeOutline.Visibility = Visibility.Visible;
+                NewEyeFilled.Visibility = Visibility.Collapsed;
+            }
+            else if (sender == ConfirmNewPasswordToggleButton)
+            {
+                ConfirmNewPasswordVisibleTextBox.Visibility = Visibility.Collapsed;
+                ConfirmNewPasswordBox.Visibility = Visibility.Visible;
+                ConfirmNewPasswordBox.Password = ConfirmNewPasswordVisibleTextBox.Text;
+
+                ConfirmEyeOutline.Visibility = Visibility.Visible;
+                ConfirmEyeFilled.Visibility = Visibility.Collapsed;
+            }
+        }
+
+
+
     }
 }

@@ -49,7 +49,7 @@
                             Margin="0,10,0,30"
                             Visibility="Collapsed">
 
-                    <Button Content="Go to Booking Page"
+                    <Button Content="Book a room here"
                             Width="200" Height="45"
                             Background="#007ACC"
                             Foreground="White"
@@ -58,7 +58,7 @@
                             Margin="0,0,0,15"
                             Click="BookingButton_Click"/>
 
-                    <Button Content="Go to Profile Page"
+                    <Button Content="Go to your Profile"
                             Width="200" Height="45"
                             Background="#007ACC"
                             Foreground="White"

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -20,44 +21,55 @@ namespace SpacefinderOff.Views
         private void SendLinkButton_Click(object sender, RoutedEventArgs e)
         {
 
+            string email = EmailTextBox.Text.Trim(); 
+            string verificationCode = GenerateCode(); 
 
-            string email = EmailTextBox.Text.Trim();
-
-            if (!email.EndsWith("@student.thomasmore.be") && !email.EndsWith("@thomasmore.be"))
+            if (IsValidThomasMoreEmail(email))
             {
-                MessageBox.Show("Only Thomas More emails are allowed.");
-                return;
+                try
+                {
+                    SendResetLink(email, verificationCode);
+                    MessageBox.Show("Verification code sent. Please check your email.");
+                   
+                    NavigationService.Navigate(new ResetPasswordPage(email, verificationCode));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error sending email: " + ex.Message);
+                }
             }
-
-            if (string.IsNullOrWhiteSpace(email))
+            else
             {
-                MessageBox.Show("Please enter your school email.");
-                return;
-            }
-
-            Random random = new Random();
-            verificationCode = random.Next(1000, 9999).ToString();
-
-            try
-            {
-                SendResetLink(email, verificationCode);
-
-                CodeVerificationPage verificationPage = new CodeVerificationPage(email, verificationCode);
-                this.NavigationService.Navigate(verificationPage);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to send email: " + ex.Message);
+                MessageBox.Show("Please enter a valid Thomas More student or teacher email.");
             }
 
 
         }
+        private string GenerateCode()
+        {
+            Random rnd = new Random();
+            return rnd.Next(1000, 9999).ToString();
+        }
+        public static bool IsValidThomasMoreEmail(string email)
+        {
+            if (email.EndsWith("@student.thomasmore.be"))
+            {
+                var username = email.Split('@')[0];
+                return Regex.IsMatch(username, @"^r\d+$");
+            }
+            else if (email.EndsWith("@thomasmore.be"))
+            {
+                var username = email.Split('@')[0];
+                return !Regex.IsMatch(username, @"^r\d+$");
+            }
+            return false;
+        }
 
         public static void SendResetLink(string recipientEmail, string verificationCode)
         {
-            var fromAddress = new MailAddress("spacefinder@office365.com", "Spacefinder");
+            var fromAddress = new MailAddress("SpacefinderOff_Staff@outlook.com", "SpacefinderOff");
             var toAddress = new MailAddress(recipientEmail);
-            const string fromPassword = "your_email_password";
+            const string fromPassword = "spacefinder";
             const string subject = "Your Spacefinder verification code";
             string body = $"Your verification code is: {verificationCode}";
 

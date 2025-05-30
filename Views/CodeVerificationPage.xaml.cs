@@ -10,24 +10,24 @@ namespace SpacefinderOff.Views
 {
     public partial class CodeVerificationPage : Page
     {
-        private readonly string correctCode;
-        private readonly string userEmail;
+        private string userEmail;
+        private string correctCode;
 
-        public CodeVerificationPage(string email, string code)
+        public CodeVerificationPage(string email, string verificationCode)
         {
             InitializeComponent();
-            correctCode = code;
             userEmail = email;
+            correctCode = verificationCode;
         }
 
-        private void VerifyButton_Click(object sender, RoutedEventArgs e)
+        private void VerifyCode_Click(object sender, RoutedEventArgs e)
         {
             string enteredCode = CodeTextBox.Text.Trim();
 
             if (enteredCode == correctCode)
             {
-                MessageBox.Show("Code verified! Now you can reset your password.");
-               
+                MessageBox.Show("Code verified successfully!");
+                NavigationService.Navigate(new ResetPasswordPage(userEmail, correctCode)); 
             }
             else
             {

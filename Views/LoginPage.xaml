@@ -13,42 +13,86 @@
 
             <StackPanel>
                 <TextBlock Text="🚀" 
-                          FontSize="48" 
-                          HorizontalAlignment="Center"
-                          Margin="0,0,0,10"/>
+                           FontSize="48" 
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10"/>
+
                 <TextBlock Text="Welcome to Spacefinder" 
-                          FontSize="24" 
-                          FontWeight="Bold" 
-                          HorizontalAlignment="Center"
-                          Foreground="#2C3E50"
-                          Margin="0,0,0,5"/>
+                           FontSize="24" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center"
+                           Foreground="#2C3E50"
+                           Margin="0,0,0,5"/>
+
                 <TextBlock Text="Sign in to your account" 
-                          FontSize="14" 
-                          HorizontalAlignment="Center"
-                          Foreground="#7F8C8D"
-                          Margin="0,0,0,30"/>
+                           FontSize="14" 
+                           HorizontalAlignment="Center"
+                           Foreground="#7F8C8D"
+                           Margin="0,0,0,30"/>
 
                 <StackPanel>
                     <TextBlock Text="Email" 
-                              FontWeight="SemiBold" 
-                              Margin="0,0,0,5"/>
+                               FontWeight="SemiBold" 
+                               Margin="0,0,0,5"/>
+
                     <TextBox Name="EmailTextBox" 
-                            Padding="15,12" 
-                            FontSize="14"
-                            Margin="0,0,0,15"
-                            BorderBrush="#BDC3C7"
-                            BorderThickness="2"/>
+                             Padding="15,12" 
+                             FontSize="14"
+                             Margin="0,0,0,15"
+                             BorderBrush="#BDC3C7"
+                             BorderThickness="2"/>
 
                     <TextBlock Text="Password" 
-                              FontWeight="SemiBold" 
-                              Margin="0,0,0,5"/>
-                    <PasswordBox Name="PasswordBox" 
-                                Padding="15,12" 
-                                FontSize="14"
-                                Margin="0,0,0,20"
-                                BorderBrush="#BDC3C7"
-                                BorderThickness="2"/>
-                    
+                               FontWeight="SemiBold" 
+                               Margin="0,15,0,5"/>
+
+                    <Grid>
+                        <PasswordBox Name="PasswordHidden"
+                                     Padding="15,12,45,12" 
+                                     FontSize="14"
+                                     BorderBrush="#BDC3C7"
+                                     BorderThickness="2"
+                                     Visibility="Visible"
+                                     PasswordChanged="PasswordHidden_PasswordChanged"/>
+
+                        <TextBox Name="PasswordVisible"
+                                 Padding="15,12,45,12" 
+                                 FontSize="14"
+                                 BorderBrush="#BDC3C7"
+                                 BorderThickness="2"
+                                 Visibility="Collapsed"
+                                 TextChanged="PasswordVisible_TextChanged"/>
+
+                        <ToggleButton x:Name="TogglePasswordVisibilityButton"
+                                      Width="30"
+                                      Height="30"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,10,0"
+                                      Checked="TogglePasswordVisibilityButton_Checked"
+                                      Unchecked="TogglePasswordVisibilityButton_Unchecked"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Cursor="Hand">
+
+                            <Grid>
+                                <Path x:Name="EyeOutline"
+                                      Data="M1,12 C5,4 19,4 23,12 C19,20 5,20 1,12 Z M12,8 A4,4 0 1,1 11.9,8"
+                                      Stroke="#007ACC" 
+                                      StrokeThickness="2" 
+                                      Fill="Transparent" 
+                                      Visibility="Visible"/>
+
+                                <Path x:Name="EyeFilled"
+                                      Data="M1,12 C5,4 19,4 23,12 C19,20 5,20 1,12 Z M12,8 A4,4 0 1,1 11.9,8"
+                                      Stroke="#007ACC" 
+                                      StrokeThickness="2" 
+                                      Fill="#007ACC" 
+                                      Visibility="Collapsed"/>
+                            </Grid>
+                        </ToggleButton>
+                    </Grid>
+
                     <Button Content="Forgot your password?" 
                             Name="ForgotPasswordButton"
                             Background="Transparent"
@@ -61,34 +105,34 @@
                             FontSize="14"
                             Click="ForgotPasswordButton_Click"/>
 
-
                     <CheckBox Name="RememberMeCheckBox" 
-                             Content="Remember me" 
-                             Margin="0,0,0,20"/>
+                              Content="Remember me" 
+                              Margin="0,0,0,20"/>
 
                     <Button Content="Sign In"
                             Name="SignInButton"
-                           Padding="0,15"
-                           FontSize="16"
-                           FontWeight="SemiBold"
-                           Margin="0,0,0,15"
-                           Background="#007ACC"
-                           Foreground="White"
-                           BorderBrush="#007ACC"
-                           Click="SignInButton_Click"/>
+                            Padding="0,15"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,15"
+                            Background="#007ACC"
+                            Foreground="White"
+                            BorderBrush="#007ACC"
+                            Click="SignInButton_Click"/>
 
                     <StackPanel Orientation="Horizontal" 
-                               HorizontalAlignment="Center"
-                               Margin="0,15,0,0">
+                                HorizontalAlignment="Center"
+                                Margin="0,15,0,0">
                         <TextBlock Text="Don't have an account? " 
-                                  Foreground="#7F8C8D"/>
+                                   Foreground="#7F8C8D"/>
+
                         <Button Content="Sign up here" 
                                 Name="SignUpButton"
-                               Background="Transparent"
-                               BorderThickness="0"
-                               Foreground="#007ACC"
-                               Cursor="Hand"
-                               Click="SignUpButton_Click"/>
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#007ACC"
+                                Cursor="Hand"
+                                Click="SignUpButton_Click"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>

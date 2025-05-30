@@ -11,12 +11,14 @@ namespace SpacefinderOff.Views
 {
     public partial class ResetPasswordPage : Page
     {
-        private readonly string userEmail;
+        private string userEmail;
+        private string correctCode;
 
-        public ResetPasswordPage(string email)
+        public ResetPasswordPage(string email, string verificationCode)
         {
             InitializeComponent();
             userEmail = email;
+            correctCode = verificationCode;
         }
 
         private void ResetPasswordButton_Click(object sender, RoutedEventArgs e)
@@ -50,7 +52,7 @@ namespace SpacefinderOff.Views
 
         private void UpdatePasswordInDatabase(string email, string newPassword)
         {
-            string connectionString = "server=localhost;database=spacefinder;uid=root;pwd=yourpassword;";
+            string connectionString = "server=localhost;user=root;password=;database=SpaceFinderAppDB;";
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 connection.Open();
