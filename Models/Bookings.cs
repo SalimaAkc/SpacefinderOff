@@ -11,9 +11,9 @@ namespace SpacefinderOff.Models
         public int BookingID { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public DateTime BookingDate { get; set; } // Change from DateOnly
+        public DateTime BookingDate { get; set; } 
         public int PeopleAmount { get; set; }
-        public string Status { get; set; } = "Confirmed"; // string instead of bool
+        public string Status { get; set; } = "Confirmed"; 
         public DateTime CreatedAt { get; set; }
 
         public int UserID { get; set; }

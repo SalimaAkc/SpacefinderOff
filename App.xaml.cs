@@ -1,31 +1,36 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SpacefinderOff.Data;
+using SpacefinderOff.Views;
+using System.Configuration;
+using System.Data;
+using System.Windows;
 
 
 namespace SpacefinderOff
 {
-    
+
     public partial class App : Application
     {
-        public static IServiceProvider? ServiceProvider { get; private set; }
 
-        protected override void OnStartup(StartupEventArgs e)
+        public static void RestartToLogin()
         {
-            var services = new ServiceCollection();
+            Window loginWindow = new Window
+            {
+                Title = "Spacefinder",
+                Content = new LoginPage(),
+                WindowState = WindowState.Normal,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                SizeToContent = SizeToContent.WidthAndHeight
+            };
+            loginWindow.Show();
 
-            services.AddDbContext<SpacefinderContext>(options =>
-                options.UseMySql(
-                    "server=localhost;database=SpacefinderAppDB;user=root;password=;",
-                    new MySqlServerVersion(new Version(8, 0, 21))
-                ));
-
-            ServiceProvider = services.BuildServiceProvider();
-            base.OnStartup(e);
+            foreach (Window window in Current.Windows)
+            {
+                if (window != loginWindow) window.Close();
+            }
         }
     }
-
 }
+
+        

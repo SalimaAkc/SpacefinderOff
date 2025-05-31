@@ -177,50 +177,14 @@
                               SelectionChanged="UsersDataGrid_SelectionChanged">
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" Width="150" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="200" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="120" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="80" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Registration Date" Binding="{Binding RegistrationDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="120" IsReadOnly="True"/>
-                            <DataGridTemplateColumn Header="Actions" Width="200">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Content="Edit" 
-                                                    Background="#F59E0B" 
-                                                    Foreground="White" 
-                                                    BorderThickness="0" 
-                                                    Padding="8,4" 
-                                                    Margin="2"
-                                                    FontSize="10"
-                                                    Cursor="Hand"
-                                                    Click="EditUserButton_Click"
-                                                    Tag="{Binding}"/>
-                                            <Button Content="Reset PWD" 
-                                                    Background="#8B5CF6" 
-                                                    Foreground="White" 
-                                                    BorderThickness="0" 
-                                                    Padding="8,4" 
-                                                    Margin="2"
-                                                    FontSize="10"
-                                                    Cursor="Hand"
-                                                    Click="ResetPasswordButton_Click"
-                                                    Tag="{Binding}"/>
-                                            <Button Content="Delete" 
-                                                    Background="#EF4444" 
-                                                    Foreground="White" 
-                                                    BorderThickness="0" 
-                                                    Padding="8,4" 
-                                                    Margin="2"
-                                                    FontSize="10"
-                                                    Cursor="Hand"
-                                                    Click="DeleteUserButton_Click"
-                                                    Tag="{Binding}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" Width="150"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="200"/>
+                            <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="120"/>
+                            <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="80"/>
+                            <DataGridTextColumn Header="Registration Date" 
+                        Binding="{Binding RegistrationDate, StringFormat='{}{0:dd/MM/yyyy}'}" 
+                        Width="120"/>
                         </DataGrid.Columns>
 
                         <DataGrid.RowStyle>

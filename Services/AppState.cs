@@ -9,6 +9,8 @@ namespace SpacefinderOff.Services
 {
     public static class AppState
     {
+        public static event Action RefreshRequested;
+        public static void RequestRefresh() => RefreshRequested?.Invoke();
         public static User? CurrentUser { get; set; }
     }
 }

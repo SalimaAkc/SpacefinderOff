@@ -85,28 +85,40 @@ namespace SpacefinderOff.Views
                         return;
                     }
 
-                    string insertQuery = "INSERT INTO Users (fullname, email, phone_number, password, created_at) " +
-                                         "VALUES (@FullName, @Email, @PhoneNumber, @Password, @CreatedAt)";
+     
+                    string insertQuery = "INSERT INTO Users (fullname, email, phone_number, password, role_id, created_at) " +
+                                         "VALUES (@FullName, @Email, @PhoneNumber, @Password, @RoleId, @CreatedAt)";
                     MySqlCommand insertCmd = new MySqlCommand(insertQuery, conn);
                     insertCmd.Parameters.AddWithValue("@FullName", fullName);
                     insertCmd.Parameters.AddWithValue("@Email", email);
                     insertCmd.Parameters.AddWithValue("@PhoneNumber", phone);
                     insertCmd.Parameters.AddWithValue("@Password", password);
+                    insertCmd.Parameters.AddWithValue("@RoleId", "user"); 
                     insertCmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
 
-                    insertCmd.ExecuteNonQuery();
+                    int rowsAffected = insertCmd.ExecuteNonQuery();
 
-                    MessageBox.Show("Registration successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    AppState.CurrentUser = new Models.User
+                    if (rowsAffected > 0)
                     {
-                        FullName = fullName,
-                        Email = email,
-                        PhoneNumber = phone,
-                        Password = password
-                    };
+                        MessageBox.Show("Registration successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    this.NavigationService?.Navigate(new BookingPage());
+                        AppState.RequestRefresh();
+
+                        AppState.CurrentUser = new Models.User
+                        {
+                            FullName = fullName,
+                            Email = email,
+                            PhoneNumber = phone,
+                            Password = password,
+                            Role = "user"
+                        };
+
+                        this.NavigationService?.Navigate(new BookingPage());
+                    }
+                    else
+                    {
+                        MessageBox.Show("Registration failed. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
                 catch (Exception ex)
                 {

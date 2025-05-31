@@ -1,10 +1,11 @@
 ﻿using MySql.Data.MySqlClient;
 using SpacefinderOff.Models;
 using SpacefinderOff.Services;
+using SpacefinderOff.Views;
 using System;
+using System.Data;
 using System.Windows;
 using System.Windows.Controls;
-using SpacefinderOff.Views;
 
 namespace SpacefinderOff.Views
 {
@@ -44,7 +45,7 @@ namespace SpacefinderOff.Views
                     conn.Open();
 
                     string getUserQuery = @"
-                SELECT user_id, fullname, email, role_id, created_at
+                SELECT user_id, fullname, email, phone_number, role_id, created_at
                 FROM Users
                 WHERE email = @Email AND password = @Password";
 
@@ -57,11 +58,10 @@ namespace SpacefinderOff.Views
                         if (reader.Read())
                         {
                             string roleFromDb = reader.IsDBNull(reader.GetOrdinal("role_id"))
-                                              ? ""
+                                              ? "user" 
                                               : reader.GetString("role_id");
 
                             bool isAdmin = IsUserAdmin(email, roleFromDb);
-
                             string userRole = isAdmin ? "admin" : "user";
 
                             AppState.CurrentUser = new Models.User
@@ -69,32 +69,19 @@ namespace SpacefinderOff.Views
                                 UserID = reader.GetInt32("user_id"),
                                 FullName = reader.GetString("fullname"),
                                 Email = reader.GetString("email"),
+                                PhoneNumber = reader.IsDBNull("phone_number") ? "" : reader.GetString("phone_number"),
                                 Role = userRole
                             };
 
-                            MessageBox.Show("Login successful!");
+                            MessageBox.Show("Login successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                             App.Current.Properties["IsLoggedIn"] = true;
-                            App.Current.Properties["IsAdmin"] = isAdmin; 
+                            App.Current.Properties["IsAdmin"] = isAdmin;
                             LoginSuccessful?.Invoke(email);
 
                             if (isAdmin)
                             {
-                                Window adminWindow = new Window()
-                                {
-                                    Title = "Spacefinder Admin Dashboard",
-                                    WindowState = WindowState.Maximized,
-                                    WindowStartupLocation = WindowStartupLocation.CenterScreen
-                                };
-                                adminWindow.Content = new AdminDashboard();
-                                adminWindow.Show();
-
-                                Window currentWindow = Window.GetWindow(this);
-                                if (currentWindow != null && currentWindow != adminWindow)
-                                {
-                                    currentWindow.Close();
-                                }
+                                this.NavigationService?.Navigate(new AdminDashboard());
                             }
-
                             else
                             {
                                 this.NavigationService?.Navigate(new ProfilePage());
@@ -116,8 +103,11 @@ namespace SpacefinderOff.Views
         private bool IsUserAdmin(string email, string roleFromDb)
         {
             bool result = false;
+
             if (email.ToLower() == "admin@spacefinder.be")
+            {
                 result = true;
+            }
 
             if (!result && !string.IsNullOrEmpty(roleFromDb))
             {
@@ -125,7 +115,8 @@ namespace SpacefinderOff.Views
                 result = role == "admin" || role == "administrator" || role == "1" || role == "superuser" || role == "super_user";
             }
 
-            MessageBox.Show($"IsUserAdmin check for email={email}, role={roleFromDb} => {result}");
+            MessageBox.Show($"IsUserAdmin check for email={email}, role={roleFromDb} => {result}", "Debug",
+                          MessageBoxButton.OK, MessageBoxImage.Information);
             return result;
         }
 
