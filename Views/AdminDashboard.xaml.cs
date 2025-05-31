@@ -183,7 +183,12 @@ namespace SpacefinderOff.Views
 
         private void CreateUserButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Create user functionality not implemented");
+            CreateUserWindow createWindow = new CreateUserWindow();
+            createWindow.Owner = Window.GetWindow(this); 
+            createWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            createWindow.ShowDialog();
+
+            LoadUsers();
         }
         private void EditUserButton_Click(object sender, RoutedEventArgs e)
           { 
