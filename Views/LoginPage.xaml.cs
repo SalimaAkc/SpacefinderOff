@@ -2,16 +2,13 @@
 using SpacefinderOff.Models;
 using SpacefinderOff.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using SpacefinderOff.Views;
 
 namespace SpacefinderOff.Views
 {
-    public partial class LoginPage
+    public partial class LoginPage : Page
     {
         public event Action<string> LoginSuccessful;
 
@@ -25,24 +22,15 @@ namespace SpacefinderOff.Views
             string email = EmailTextBox.Text.Trim();
             string password = PasswordHidden.Password.Trim();
 
-
-            if (email.EndsWith("@student.thomasmore.be") || email.EndsWith("@teacher.thomasmore.be"))
-            {
-                LoginSuccessful?.Invoke(email); 
-            }
-            else
-            {
-                MessageBox.Show("Invalid email or password.");
-            }
-
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 MessageBox.Show("Please enter both email and password.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (!EmailValidator.IsValidThomasMoreEmail(email))
+
+            if (!EmailValidator.IsValidThomasMoreEmail(email) && email.ToLower() != "admin@spacefinder.be")
             {
-                MessageBox.Show("Only @student.thomasmore.be or @thomasmore.be emails are allowed.",
+                MessageBox.Show("Only @student.thomasmore.be or @thomasmore.be emails, or admin are allowed.",
                                 "Invalid Email", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -55,28 +43,62 @@ namespace SpacefinderOff.Views
                 {
                     conn.Open();
 
-                    string getUserQuery = "SELECT user_id, fullname, email, created_at FROM Users WHERE email = @Email AND password = @Password";
+                    string getUserQuery = @"
+                SELECT user_id, fullname, email, role_id, created_at
+                FROM Users
+                WHERE email = @Email AND password = @Password";
+
                     MySqlCommand getUserCmd = new MySqlCommand(getUserQuery, conn);
                     getUserCmd.Parameters.AddWithValue("@Email", email);
                     getUserCmd.Parameters.AddWithValue("@Password", password);
-                    
+
                     using (MySqlDataReader reader = getUserCmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
-                            AppState.CurrentUser = new User
+                            string roleFromDb = reader.IsDBNull(reader.GetOrdinal("role_id"))
+                                              ? ""
+                                              : reader.GetString("role_id");
+
+                            bool isAdmin = IsUserAdmin(email, roleFromDb);
+
+                            string userRole = isAdmin ? "admin" : "user";
+
+                            AppState.CurrentUser = new Models.User
                             {
                                 UserID = reader.GetInt32("user_id"),
                                 FullName = reader.GetString("fullname"),
-                                Email = reader.GetString("email")
+                                Email = reader.GetString("email"),
+                                Role = userRole
                             };
 
                             MessageBox.Show("Login successful!");
-
                             App.Current.Properties["IsLoggedIn"] = true;
+                            App.Current.Properties["IsAdmin"] = isAdmin; 
+                            LoginSuccessful?.Invoke(email);
 
-                            var bookingPage = new BookingPage();
-                            this.NavigationService?.Navigate(bookingPage);
+                            if (isAdmin)
+                            {
+                                Window adminWindow = new Window()
+                                {
+                                    Title = "Spacefinder Admin Dashboard",
+                                    WindowState = WindowState.Maximized,
+                                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                                };
+                                adminWindow.Content = new AdminDashboard();
+                                adminWindow.Show();
+
+                                Window currentWindow = Window.GetWindow(this);
+                                if (currentWindow != null && currentWindow != adminWindow)
+                                {
+                                    currentWindow.Close();
+                                }
+                            }
+
+                            else
+                            {
+                                this.NavigationService?.Navigate(new ProfilePage());
+                            }
                         }
                         else
                         {
@@ -90,6 +112,23 @@ namespace SpacefinderOff.Views
                 }
             }
         }
+
+        private bool IsUserAdmin(string email, string roleFromDb)
+        {
+            bool result = false;
+            if (email.ToLower() == "admin@spacefinder.be")
+                result = true;
+
+            if (!result && !string.IsNullOrEmpty(roleFromDb))
+            {
+                string role = roleFromDb.ToLower().Trim();
+                result = role == "admin" || role == "administrator" || role == "1" || role == "superuser" || role == "super_user";
+            }
+
+            MessageBox.Show($"IsUserAdmin check for email={email}, role={roleFromDb} => {result}");
+            return result;
+        }
+
         private void TogglePasswordVisibilityButton_Checked(object sender, RoutedEventArgs e)
         {
             PasswordVisible.Visibility = Visibility.Visible;

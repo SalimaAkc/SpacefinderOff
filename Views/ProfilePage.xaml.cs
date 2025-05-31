@@ -19,7 +19,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SpacefinderOff.Views
 {
-    public partial class ProfilePage : Page 
+    public partial class ProfilePage : Page
     {
         public ProfilePage()
         {
@@ -29,6 +29,7 @@ namespace SpacefinderOff.Views
             {
                 MessageBox.Show("Please log in to access this page.", "Authentication Required",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
+
                 this.NavigationService?.Navigate(new LoginPage());
                 return;
             }
@@ -50,7 +51,7 @@ namespace SpacefinderOff.Views
                 {
                     conn.Open();
 
-                    string query = "SELECT user_id, fullname, email, created_at FROM Users WHERE email = @Email";
+                    string query = "SELECT user_id, fullname, email, created_at, phone_number FROM Users WHERE email = @Email";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@Email", AppState.CurrentUser.Email);
 
@@ -61,13 +62,15 @@ namespace SpacefinderOff.Views
                             string fullName = reader["fullname"].ToString();
                             string email = reader["email"].ToString();
                             DateTime createdAt = Convert.ToDateTime(reader["created_at"]);
+                            string phone = reader["phone_number"]?.ToString() ?? string.Empty;
 
-                           
                             AppState.CurrentUser.UserID = reader.GetInt32("user_id");
                             AppState.CurrentUser.FullName = fullName;
                             AppState.CurrentUser.Email = email;
+                            AppState.CurrentUser.PhoneNumber = phone;
 
-                            string userType = "Student"; 
+                            string userType = "Student";
+
                             if (email.EndsWith("@thomasmore.be"))
                             {
                                 userType = "Teacher";
@@ -77,11 +80,12 @@ namespace SpacefinderOff.Views
                                 userType = "Student";
                             }
 
-                            UserNameLabel.Text = fullName;         
-                            FullNameLabel.Text = fullName;         
-                            EmailTextBox.Text = email;
-                            StatusName.Text = userType;
-                            RegistrationDateTextBlock.Text = $"Member Since: {createdAt:dd MMMM yyyy}";
+                            UserName.Text = fullName;
+                            FullNameBox.Text = fullName;
+                            EmailBox.Text = email;
+                            PhoneNumberBox.Text = phone;
+                            StatusNameSpace.Text = userType;
+                            RegistrationDate.Text = $"Member Since: {createdAt:dd MMMM yyyy}";
                         }
                     }
                 }
@@ -124,8 +128,8 @@ namespace SpacefinderOff.Views
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@UserId", AppState.CurrentUser.UserID);
 
-                    if (BookingsListBox != null)
-                        BookingsListBox.Items.Clear();
+                    if (BookingsList != null)
+                        BookingsList.Items.Clear();
 
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -153,14 +157,14 @@ namespace SpacefinderOff.Views
                                                $"Status: {status}\n" +
                                                $"Booked on: {createdAt:dd MMMM yyyy HH:mm}";
 
-                            BookingsListBox.Items.Add(new ListBoxItem
+                            BookingsList.Items.Add(new ListBoxItem
                             {
                                 Content = bookingInfo,
-                                Tag = bookingId  
+                                Tag = bookingId
                             });
 
                         }
-                     }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -176,7 +180,7 @@ namespace SpacefinderOff.Views
 
         private void CancelBookingButton_Click(object sender, RoutedEventArgs e)
         {
-            if (BookingsListBox.SelectedItem is ListBoxItem selectedItem)
+            if (BookingsList.SelectedItem is ListBoxItem selectedItem)
             {
                 int bookingId = (int)selectedItem.Tag;
 
@@ -203,7 +207,7 @@ namespace SpacefinderOff.Views
                             if (rowsAffected > 0)
                             {
                                 MessageBox.Show("Booking successfully cancelled.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                                LoadUserBookings(); 
+                                LoadUserBookings();
                             }
                             else
                             {
@@ -241,7 +245,7 @@ namespace SpacefinderOff.Views
                 string filePath = openDialog.FileName;
 
                 BitmapImage bitmap = new BitmapImage(new Uri(filePath));
-                ProfileImageBrush.ImageSource = bitmap;
+                ProfileImage.ImageSource = bitmap;
 
 
                 byte[] imageData = File.ReadAllBytes(filePath);
@@ -271,7 +275,7 @@ namespace SpacefinderOff.Views
 
                     if (rowsAffected > 0)
                     {
-                        
+
                         UpdateProfilePictureButtons();
 
                         MessageBox.Show("Profile picture updated successfully!", "Success",
@@ -320,17 +324,17 @@ namespace SpacefinderOff.Views
                                 image.EndInit();
                                 image.Freeze();
 
-                                ProfileImageBrush.ImageSource = image;
+                                ProfileImage.ImageSource = image;
                             }
                         }
                         else
                         {
-                            ProfileImageBrush.ImageSource = null;
+                            ProfileImage.ImageSource = null;
                         }
                     }
                     else
                     {
-                        ProfileImageBrush.ImageSource = null;
+                        ProfileImage.ImageSource = null;
                     }
 
                     UpdateProfilePictureButtons();
@@ -340,7 +344,7 @@ namespace SpacefinderOff.Views
                     MessageBox.Show("Error loading profile image: " + ex.Message, "Database Error",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                    ProfileImageBrush.ImageSource = null;
+                    ProfileImage.ImageSource = null;
                     UpdateProfilePictureButtons();
                 }
             }
@@ -382,7 +386,7 @@ namespace SpacefinderOff.Views
 
                     if (rowsAffected > 0)
                     {
-                        ProfileImageBrush.ImageSource = null;
+                        ProfileImage.ImageSource = null;
 
                         UpdateProfilePictureButtons();
 
@@ -406,31 +410,32 @@ namespace SpacefinderOff.Views
 
         private bool HasProfilePicture()
         {
-            return ProfileImageBrush.ImageSource != null;
+            return ProfileImage.ImageSource != null;
         }
 
-       
+
         private void UpdateProfilePictureButtons()
         {
-          
+
             if (HasProfilePicture())
             {
-             
-                RemoveProfilePictureButton.Visibility = Visibility.Visible;
-                UploadPhotoButton.Content = "Change Photo";
+
+                RemoveProfilePicture.Visibility = Visibility.Visible;
+                UploadPhoto.Content = "Change Photo";
             }
             else
             {
-               RemoveProfilePictureButton.Visibility = Visibility.Collapsed;
-               UploadPhotoButton.Content = "Upload Photo";
+                RemoveProfilePicture.Visibility = Visibility.Collapsed;
+                UploadPhoto.Content = "Upload Photo";
             }
         }
 
 
         private void UpdateInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            string newFullName = FullNameLabel.Text.Trim();
-            string newEmail = EmailTextBox.Text.Trim();
+            string newFullName = FullNameBox.Text.Trim();
+            string newEmail = EmailBox.Text.Trim();
+            string newPhone = PhoneNumberBox.Text.Trim();
 
 
             if (string.IsNullOrWhiteSpace(newFullName) || string.IsNullOrWhiteSpace(newEmail))
@@ -452,10 +457,11 @@ namespace SpacefinderOff.Views
                 {
                     conn.Open();
 
-                    string updateQuery = "UPDATE Users SET fullName = @FullName, email = @Email WHERE user_id = @UserId";
+                    string updateQuery = "UPDATE Users SET fullName = @FullName, email = @Email, phone_number = @PhoneNumber WHERE user_id = @UserId";
                     MySqlCommand cmd = new MySqlCommand(updateQuery, conn);
                     cmd.Parameters.AddWithValue("@FullName", newFullName);
                     cmd.Parameters.AddWithValue("@Email", newEmail);
+                    cmd.Parameters.AddWithValue("@PhoneNumber", newPhone);
                     cmd.Parameters.AddWithValue("@UserId", AppState.CurrentUser.UserID);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
@@ -465,11 +471,13 @@ namespace SpacefinderOff.Views
                     {
                         AppState.CurrentUser.FullName = newFullName;
                         AppState.CurrentUser.Email = newEmail;
+                        AppState.CurrentUser.PhoneNumber = newPhone;
 
-                        UserNameLabel.Text = newFullName;
-                        EmailTextBox.Text = newEmail;
 
-                        MessageBox.Show("Your name and email has been updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        UserName.Text = newFullName;
+                        EmailBox.Text = newEmail;
+
+                        MessageBox.Show("Your information has been updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
@@ -478,10 +486,11 @@ namespace SpacefinderOff.Views
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error updating name: " + ex.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Error updating profile: " + ex.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
+        
 
         private void DeleteAccountButton_Click(object sender, RoutedEventArgs e)
         {
@@ -499,7 +508,7 @@ namespace SpacefinderOff.Views
                     using (MySqlConnection conn = new MySqlConnection(connectionString))
                     {
                         conn.Open();
- 
+
                         string deleteBookingsQuery = "DELETE FROM Bookings WHERE user_id = @UserId";
                         MySqlCommand deleteBookingsCmd = new MySqlCommand(deleteBookingsQuery, conn);
                         deleteBookingsCmd.Parameters.AddWithValue("@UserId", AppState.CurrentUser.UserID);
@@ -525,9 +534,9 @@ namespace SpacefinderOff.Views
         private void ChangePasswordButton_Click(object sender, RoutedEventArgs e)
         {
             string currentPassword = CurrentPasswordBox.Password;
-            string newPassword = NewPasswordBox.Password;
+            string newPassword = NewPasswordTextBox.Password;
             string confirmPassword = ConfirmNewPasswordBox.Password;
-            string email = EmailTextBox.Text;
+            string email = EmailBox.Text;
 
             if (string.IsNullOrWhiteSpace(currentPassword) ||
                 string.IsNullOrWhiteSpace(newPassword) ||
@@ -579,7 +588,7 @@ namespace SpacefinderOff.Views
                     {
                         MessageBox.Show("Password successfully changed.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                         CurrentPasswordBox.Clear();
-                        NewPasswordBox.Clear();
+                        NewPasswordTextBox.Clear();
                         ConfirmNewPasswordBox.Clear();
                     }
 
@@ -610,8 +619,8 @@ namespace SpacefinderOff.Views
             if (sender == CurrentPasswordBox && CurrentPasswordToggleButton.IsChecked == true)
                 CurrentPasswordVisibleTextBox.Text = CurrentPasswordBox.Password;
 
-            if (sender == NewPasswordBox && NewPasswordToggleButton.IsChecked == true)
-                NewPasswordVisibleTextBox.Text = NewPasswordBox.Password;
+            if (sender == NewPasswordTextBox && NewPasswordToggleButton.IsChecked == true)
+                NewPasswordVisibleTextBox.Text = NewPasswordTextBox.Password;
 
             if (sender == ConfirmNewPasswordBox && ConfirmNewPasswordToggleButton.IsChecked == true)
                 ConfirmNewPasswordVisibleTextBox.Text = ConfirmNewPasswordBox.Password;
@@ -623,7 +632,7 @@ namespace SpacefinderOff.Views
                 CurrentPasswordBox.Password = CurrentPasswordVisibleTextBox.Text;
 
             if (sender == NewPasswordVisibleTextBox && NewPasswordToggleButton.IsChecked == true)
-                NewPasswordBox.Password = NewPasswordVisibleTextBox.Text;
+                NewPasswordTextBox.Password = NewPasswordVisibleTextBox.Text;
 
             if (sender == ConfirmNewPasswordVisibleTextBox && ConfirmNewPasswordToggleButton.IsChecked == true)
                 ConfirmNewPasswordBox.Password = ConfirmNewPasswordVisibleTextBox.Text;
@@ -643,8 +652,8 @@ namespace SpacefinderOff.Views
             else if (sender == NewPasswordToggleButton)
             {
                 NewPasswordVisibleTextBox.Visibility = Visibility.Visible;
-                NewPasswordBox.Visibility = Visibility.Collapsed;
-                NewPasswordVisibleTextBox.Text = NewPasswordBox.Password;
+                NewPasswordTextBox.Visibility = Visibility.Collapsed;
+                NewPasswordVisibleTextBox.Text = NewPasswordTextBox.Password;
 
                 NewEyeOutline.Visibility = Visibility.Collapsed;
                 NewEyeFilled.Visibility = Visibility.Visible;
@@ -674,8 +683,8 @@ namespace SpacefinderOff.Views
             else if (sender == NewPasswordToggleButton)
             {
                 NewPasswordVisibleTextBox.Visibility = Visibility.Collapsed;
-                NewPasswordBox.Visibility = Visibility.Visible;
-                NewPasswordBox.Password = NewPasswordVisibleTextBox.Text;
+                NewPasswordTextBox.Visibility = Visibility.Visible;
+                NewPasswordTextBox.Password = NewPasswordVisibleTextBox.Text;
 
                 NewEyeOutline.Visibility = Visibility.Visible;
                 NewEyeFilled.Visibility = Visibility.Collapsed;
@@ -691,7 +700,30 @@ namespace SpacefinderOff.Views
             }
         }
 
+        private void EmailBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
 
+        }
+        private void CheckAdminStatus()
+        {
+            if (AppState.CurrentUser != null &&
+                (AppState.CurrentUser.Email.ToLower() == "admin@spacefinder.be" ||
+                 AppState.CurrentUser.Role.ToLower() == "admin"))
+            {
+                AdminDashboardButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                AdminDashboardButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void AdminDashboardButton_Click(object sender, RoutedEventArgs e)
+        {
+            Window adminWindow = new Window();
+            adminWindow.Content = new AdminDashboard();
+            adminWindow.Show();
+        }
 
     }
 }

@@ -50,9 +50,9 @@
                                 Margin="0,0,0,15">
                             <Ellipse Width="120" Height="120" Name="ProfileImageEllipse">
                                 <Ellipse.Fill>
-                                    <ImageBrush x:Name="ProfileImageBrush"
+                                    <ImageBrush x:Name ="ProfileImage"
                                                 Stretch="UniformToFill"
-                                                AlignmentX="Center"
+                                                AlignmentX= "Center"
                                                 AlignmentY="Center"/>
                                 </Ellipse.Fill>
                             </Ellipse>
@@ -63,7 +63,7 @@
                             </Border.Effect>
                         </Border>
 
-                        <Button Name="UploadPhotoButton"
+                        <Button Name="UploadPhoto"
                                 Content="Upload New Photo"
                                 Background="#FF4757"
                                 Foreground="White"
@@ -84,27 +84,27 @@
                             </Button.Style>
                         </Button>
 
-                        <Button Name="RemoveProfilePictureButton" 
+                        <Button Name="RemoveProfilePicture" 
                                 Content="Remove Photo" 
                                 Click="RemoveProfilePictureButton_Click"
                                 Margin="5"
                                 Background="Red"
                                 Foreground="White"/>
 
-                        <TextBlock Name="UserNameLabel"
+                        <TextBlock Name="UserName"
                                    FontSize="22"
                                    FontWeight="Bold"
                                    Foreground="#2E3440"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,5"/>
 
-                        <TextBlock Name="StatusName"
+                        <TextBlock Name="StatusNameSpace"
                                    FontSize="14"
                                    Foreground="#6B7280"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,15"/>
 
-                        <TextBlock Name="RegistrationDateTextBlock"
+                        <TextBlock Name="RegistrationDate"
                                    FontSize="12"
                                    Foreground="#6B7280"
                                    HorizontalAlignment="Center"
@@ -130,6 +130,22 @@
                                 </Style>
                             </Button.Style>
                         </Button>
+
+                        <Border CornerRadius="5" Background="#4CAF50">
+                            <Button x:Name="AdminDashboardButton"
+            Content="Admin Dashboard"
+            Background="Transparent"
+            Foreground="White"
+            BorderThickness="0"
+            Padding="15,8"
+            Cursor="Hand"
+            FontWeight="SemiBold"
+            Width="180"
+            Margin="0,0,0,15"
+            Visibility="Collapsed"
+            Click="AdminDashboardButton_Click">
+                            </Button>
+                        </Border>
                     </StackPanel>
                 </Border>
 
@@ -144,6 +160,8 @@
                                    FontWeight="Bold"
                                    Foreground="#2E3440"
                                    Margin="0,0,0,30"/>
+                        
+                        
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -151,7 +169,6 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -163,7 +180,7 @@
                                            Foreground="#374151" 
                                            Margin="0,0,0,5"/>
 
-                                <TextBox Name="FullNameLabel"
+                                <TextBox Name="FullNameBox"
                                          Padding="12"
                                          BorderBrush="#D1D5DB"
                                          Background="White"/>
@@ -175,10 +192,10 @@
                                            Foreground="#374151" 
                                            Margin="0,0,0,5"/>
 
-                                <TextBox Name="EmailTextBox"
+                                <TextBox Name="EmailBox"
                                          Padding="12"
                                          BorderBrush="#D1D5DB"
-                                         Background="#F9FAFB"/>
+                                         Background="#F9FAFB" TextChanged="EmailBox_TextChanged"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,15,20">
@@ -192,7 +209,7 @@
                                                  Padding="12"
                                                  BorderBrush="#D1D5DB"
                                                  Background="White"
-                                                 PasswordChanged="PasswordBox_PasswordChanged"/>
+                                                 PasswordChanged="PasswordBox_PasswordChanged" Height="42" VerticalAlignment="Top"/>
 
                                     <TextBox x:Name="CurrentPasswordVisibleTextBox"
                                              Padding="12"
@@ -232,26 +249,13 @@
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Grid.Column="1" Margin="15,0,0,20">
-                                <TextBlock Text="Language" 
-                                           FontWeight="SemiBold" 
-                                           Foreground="#374151" 
-                                           Margin="0,0,0,5"/>
-
-                                <ComboBox Name="LanguageCombobox">
-                                    <ComboBoxItem Content="English" IsSelected="True"/>
-                                    <ComboBoxItem Content="Dutch"/>
-                                    <ComboBoxItem Content="French"/>
-                                </ComboBox>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,15,20">
                                 <TextBlock Text="New Password" 
                                            FontWeight="SemiBold" 
                                            Foreground="#374151" 
                                            Margin="0,0,0,5"/>
 
                                 <Grid>
-                                    <PasswordBox x:Name="NewPasswordBox"
+                                    <PasswordBox x:Name="NewPasswordTextBox"
                                                  Padding="12"
                                                  BorderBrush="#D1D5DB"
                                                  Background="White"
@@ -294,7 +298,7 @@
                                 </Grid>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="2" Grid.Column="1" Margin="15,0,0,20">
+                            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,15,20">
                                 <TextBlock Text="Confirm New Password" 
                                            FontWeight="SemiBold" 
                                            Foreground="#374151" 
@@ -343,6 +347,17 @@
                                     </ToggleButton>
                                 </Grid>
                             </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="1" Margin="15,0,0,20">
+                                <TextBlock Text="Phone Number" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="#374151" 
+                                           Margin="0,0,0,5"/>
+                                <TextBox Name="PhoneNumberBox"
+                                         Padding="12"
+                                         BorderBrush="#D1D5DB"
+                                         Background="White"/>
+                            </StackPanel>
                         </Grid>
 
                         <TextBlock Text="Actual Bookings"
@@ -362,7 +377,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <ListBox x:Name="BookingsListBox" 
+                                <ListBox x:Name="BookingsList" 
                                          Grid.Row="0"
                                          Height="200"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto"

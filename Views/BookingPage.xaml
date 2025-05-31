@@ -26,7 +26,7 @@
         </Grid>
 
         <Grid Grid.Row="1">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20" Width="400">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20" Width="600">
 
                 <ComboBox Name="CampusComboBox"
                           Margin="0,10"
@@ -217,13 +217,47 @@
                            Margin="0,20,0,10"
                            TextAlignment="Center"/>
 
-                <ListBox Name="AvailableRoomsListBox"
-                         Height="150"
-                         BorderBrush="#007ACC"
-                         BorderThickness="1"
-                         Background="White"
-                         FontSize="14"
-                         SelectionChanged="AvailableRoomsListBox_SelectionChanged"/>
+                <ListView Name="AvailableRoomsListView"
+          Height="150"
+          BorderBrush="#007ACC"
+          BorderThickness="1"
+          Background="White"
+          SelectionChanged="AvailableRoomsListBox_SelectionChanged">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Background" Value="{Binding StatusBackground}"/>
+                    
+                            <Setter Property="IsEnabled" Value="{Binding IsAvailable}"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderThickness="0,0,0,1" BorderBrush="#E0E0E0" Padding="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" 
+                               Text="{Binding DisplayText}" 
+                               FontSize="14"
+                               FontWeight="SemiBold"/>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Capacity: " FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Capacity}"/>
+                                        <TextBlock Text="{Binding StatusText}" 
+                                   Foreground="{Binding StatusForeground}"
+                                   FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
             </StackPanel>
 

@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpacefinderOff.Models
+namespace SpacefinderOff.Services
 {
-    public enum UserType
+    internal class ApiService
     {
-        Student,
-        Teacher,
-        Admin
     }
 }
