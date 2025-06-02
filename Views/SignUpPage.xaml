@@ -61,7 +61,6 @@
                          BorderBrush="#BDC3C7"
                          BorderThickness="2"/>
 
-                <!-- Password Field -->
                 <TextBlock Text="Password" 
                            FontWeight="SemiBold" 
                            Margin="0,0,0,5"/>
